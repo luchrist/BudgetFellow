@@ -10,6 +10,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import de.christcoding.budgetfellow.navigation.Navigation
 import de.christcoding.budgetfellow.ui.theme.BudgetFellowTheme
 import de.christcoding.budgetfellow.views.AddFirstIncomeScreen
 
@@ -23,19 +24,11 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    AddFirstIncomeScreen()
+                    Navigation()
                 }
             }
         }
     }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
 }
 
 @Preview(showBackground = true, device = "id:Nexus One", backgroundColor = 0xFF673AB7)
@@ -46,7 +39,7 @@ fun GreetingPreview() {
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-            Greeting("Android")
+            Navigation()
         }
     }
 }

@@ -18,4 +18,8 @@
     <string name="years">Years</string>
     <string name="add">Add</string>
     <string name="skip">Skip</string>
+    <string name="name">Name</string>
+    <string name="invalid_amount_field">only numbers allowed</string>
+    <string name="amount">Amount</string>
+    <string name="invalid_period_field">input must be a number</string>
 </resources>
