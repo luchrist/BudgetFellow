@@ -1,6 +1,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("kotlin-kapt")
 }
 
 android {
@@ -50,6 +51,18 @@ android {
 }
 
 dependencies {
+    val compose_version = "1.6.0-alpha06"
+    val room = "2.6.1"
+
+    // Room
+    implementation("androidx.room:room-runtime:$room")
+    implementation("androidx.room:room-common:2.6.1")
+    implementation("androidx.room:room-ktx:2.6.1")
+    kapt("androidx.room:room-compiler:$room")
+
+    implementation("androidx.compose.ui:ui:$compose_version")
+    implementation("androidx.compose.material:material:$compose_version")
+    implementation("androidx.compose.ui:ui-tooling-preview:$compose_version")
 
     implementation ("androidx.compose.material3:material3:1.2.0-beta01")
     implementation("androidx.core:core-ktx:1.12.0")
@@ -62,8 +75,6 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.material3:material3-android:1.2.0-beta01")
-    implementation("androidx.room:room-common:2.6.1")
-    implementation("androidx.room:room-ktx:2.6.1")
     implementation("androidx.navigation:navigation-runtime-ktx:2.7.6")
     implementation("androidx.navigation:navigation-compose:2.7.6")
     implementation("androidx.constraintlayout:constraintlayout-core:1.0.4")

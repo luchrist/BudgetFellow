@@ -2,6 +2,7 @@ package de.christcoding.budgetfellow.data
 
 import android.content.Context
 import androidx.room.Room
+import de.christcoding.budgetfellow.utils.Constants
 
 object Graph {
     lateinit var database: Database
@@ -11,6 +12,6 @@ object Graph {
     }
 
     fun provide(context: Context) {
-        database = Room.databaseBuilder(context, Database::class.java, "budgetfellow.db").build()
+        database = Room.databaseBuilder(context, Database::class.java, Constants.DATABASE_NAME).build()
     }
 }

@@ -11,16 +11,16 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 abstract class TransactionDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    abstract suspend fun addATransaction(transactionEntity: Transaction)
+    abstract suspend fun addATransaction(transactionEntity: Transaction): Long //returns the id of the added row
 
     @Query("Select * from `transaction-table`")
     abstract fun getAllTransactions(): Flow<List<Transaction>>
 
     @Update
-    abstract suspend fun updateATransaction(transactionEntity: Transaction)
+    abstract suspend fun updateATransaction(transactionEntity: Transaction): Int // returns the number of rows updated
 
     @Delete
-    abstract suspend fun deleteATransaction(transactionEntity: Transaction)
+    abstract suspend fun deleteATransaction(transactionEntity: Transaction): Int
 
     @Query("Select * from `transaction-table` where id=:id")
     abstract fun getATransactionById(id:Long): Flow<Transaction>

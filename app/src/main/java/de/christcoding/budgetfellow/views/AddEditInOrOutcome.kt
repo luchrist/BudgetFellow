@@ -1,14 +1,17 @@
 package de.christcoding.budgetfellow.views
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -40,6 +43,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -71,7 +75,7 @@ fun AddEditInOrOutcome(mainViewModel: MainViewModel, mode: TransactionMode) {
             }
         }
     }
-    
+
     Text(
         text = mainViewModel.stepDesc,
         style = MaterialTheme.typography.titleMedium
@@ -95,7 +99,10 @@ fun AddEditInOrOutcome(mainViewModel: MainViewModel, mode: TransactionMode) {
             OutlinedTextField(
                 value = mainViewModel.amount,
                 shape = RoundedCornerShape(16.dp),
-                onValueChange = {mainViewModel.amount = it},
+                onValueChange = {
+                    mainViewModel.amount = it
+                    mainViewModel.onEvent(AddTransactionEvent.OnAmountChanged(it))
+                                },
                 keyboardOptions = KeyboardOptions(
                     imeAction = ImeAction.Done,
                     keyboardType = KeyboardType.Number
@@ -128,8 +135,7 @@ fun AddEditInOrOutcome(mainViewModel: MainViewModel, mode: TransactionMode) {
         })
     }
     if (mainViewModel.recurring) {
-        Row() {
-            Column {
+            Row() {
                 OutlinedTextField(
                     value = mainViewModel.recurringPeriod,
                     onValueChange = {
@@ -144,96 +150,95 @@ fun AddEditInOrOutcome(mainViewModel: MainViewModel, mode: TransactionMode) {
                     shape = RoundedCornerShape(16.dp),
                     modifier = Modifier.weight(0.2f)
                 )
-                if(state.periodError != null) {
-                    Text(text = state.periodError, color = MaterialTheme.colorScheme.error)
-                }
-            }
-            ExposedDropdownMenuBox(
-                expanded = isExpanded,
-                onExpandedChange = { isExpanded = it }) {
-                OutlinedTextField(
-                    value = DateUtils.getPluralUnit(
-                        context,
-                        mainViewModel.periodUnit,
-                        mainViewModel.recurringPeriod
-                    ),
-                    onValueChange = {},
-                    readOnly = true,
-                    leadingIcon = {
-                        Image(
-                            painter = painterResource(id = R.drawable.date_range),
-                            contentDescription = null
-                        )
-                    },
-                    trailingIcon = {
-                        ExposedDropdownMenuDefaults.TrailingIcon(
-                            expanded = isExpanded
-                        )
-                    },
-                    shape = RoundedCornerShape(16.dp),
-                    modifier = Modifier.menuAnchor()
-                )
-                Box {
-                    ExposedDropdownMenu(
-                        expanded = isExpanded,
-                        onDismissRequest = { isExpanded = false }) {
-                        DropdownMenuItem(
-                            text = {
-                                Text(
-                                    text =
-                                    if (mainViewModel.recurringPeriod.toInt() == 1)
-                                        stringResource(R.string.day)
-                                    else
-                                        stringResource(R.string.days)
-                                )
-                            },
-                            onClick = {
-                                mainViewModel.periodUnit = context.resources.getString(R.string.day)
-                                isExpanded = false
-                            })
-                        DropdownMenuItem(
-                            text = {
-                                Text(
-                                    text = if (mainViewModel.recurringPeriod.toInt() == 1) stringResource(
-                                        R.string.week) else stringResource(
-                                        R.string.weeks
+                ExposedDropdownMenuBox(
+                    expanded = isExpanded,
+                    onExpandedChange = { isExpanded = it }) {
+                    OutlinedTextField(
+                        value = DateUtils.getPluralUnit(
+                            context,
+                            mainViewModel.periodUnit,
+                            mainViewModel.recurringPeriod
+                        ),
+                        onValueChange = {},
+                        readOnly = true,
+                        leadingIcon = {
+                            Image(
+                                painter = painterResource(id = R.drawable.date_range),
+                                contentDescription = null
+                            )
+                        },
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(
+                                expanded = isExpanded
+                            )
+                        },
+                        shape = RoundedCornerShape(16.dp),
+                        modifier = Modifier.menuAnchor()
+                    )
+                    Box {
+                        ExposedDropdownMenu(
+                            expanded = isExpanded,
+                            onDismissRequest = { isExpanded = false }) {
+                            DropdownMenuItem(
+                                text = {
+                                    Text(
+                                        text =
+                                        if (mainViewModel.recurringPeriod.toInt() == 1)
+                                            stringResource(R.string.day)
+                                        else
+                                            stringResource(R.string.days)
                                     )
-                                )
-                            },
-                            onClick = {
-                                mainViewModel.periodUnit = context.resources.getString(R.string.week)
-                                isExpanded = false
-                            })
-                        DropdownMenuItem(
-                            text = {
-                                Text(
-                                    text = if (mainViewModel.recurringPeriod.toInt() == 1) stringResource(
-                                        R.string.month) else stringResource(
-                                        R.string.months
+                                },
+                                onClick = {
+                                    mainViewModel.periodUnit = context.resources.getString(R.string.day)
+                                    isExpanded = false
+                                })
+                            DropdownMenuItem(
+                                text = {
+                                    Text(
+                                        text = if (mainViewModel.recurringPeriod.toInt() == 1) stringResource(
+                                            R.string.week) else stringResource(
+                                            R.string.weeks
+                                        )
                                     )
-                                )
-                            },
-                            onClick = {
-                                mainViewModel.periodUnit = context.resources.getString(R.string.month)
-                                isExpanded = false
-                            })
-                        DropdownMenuItem(
-                            text = {
-                                Text(
-                                    text = if (mainViewModel.recurringPeriod.toInt() == 1) stringResource(
-                                        R.string.year) else stringResource(
-                                        R.string.years
+                                },
+                                onClick = {
+                                    mainViewModel.periodUnit = context.resources.getString(R.string.week)
+                                    isExpanded = false
+                                })
+                            DropdownMenuItem(
+                                text = {
+                                    Text(
+                                        text = if (mainViewModel.recurringPeriod.toInt() == 1) stringResource(
+                                            R.string.month) else stringResource(
+                                            R.string.months
+                                        )
                                     )
-                                )
-                            },
-                            onClick = {
-                                mainViewModel.periodUnit = context.resources.getString(R.string.year)
-                                isExpanded = false
-                            })
+                                },
+                                onClick = {
+                                    mainViewModel.periodUnit = context.resources.getString(R.string.month)
+                                    isExpanded = false
+                                })
+                            DropdownMenuItem(
+                                text = {
+                                    Text(
+                                        text = if (mainViewModel.recurringPeriod.toInt() == 1) stringResource(
+                                            R.string.year) else stringResource(
+                                            R.string.years
+                                        )
+                                    )
+                                },
+                                onClick = {
+                                    mainViewModel.periodUnit = context.resources.getString(R.string.year)
+                                    isExpanded = false
+                                })
+                        }
                     }
                 }
             }
-        }
+            if(state.periodError != null) {
+                Text(text = state.periodError, color = MaterialTheme.colorScheme.error, textAlign = TextAlign.Start, modifier = Modifier.fillMaxWidth())
+            }
     }
     Spacer(modifier = Modifier.height(8.dp))
     OutlinedButton(onClick = {mainViewModel.onEvent(AddTransactionEvent.OnAddClicked)}) {
@@ -259,5 +264,19 @@ fun AddEditInOrOutcome(mainViewModel: MainViewModel, mode: TransactionMode) {
         }) {
             DatePicker(state = datePickerState)
         }
+    }
+    if (mainViewModel.rowsUpdated > 0) {
+        Toast.makeText(context, "Updated Successfully", Toast.LENGTH_SHORT).show()
+        mainViewModel.rowsUpdated = -1
+    } else if(mainViewModel.rowsUpdated == 0) {
+        Toast.makeText(context, "Update Failed", Toast.LENGTH_SHORT).show()
+        mainViewModel.rowsUpdated = -1
+    }
+    if (mainViewModel.id > -1L) {
+        Toast.makeText(context, "Added Successfully", Toast.LENGTH_SHORT).show()
+        mainViewModel.id = -2L
+    } else if(mainViewModel.id == -1L) {
+        Toast.makeText(context, "Adding Failed", Toast.LENGTH_SHORT).show()
+        mainViewModel.id = -2L
     }
 }

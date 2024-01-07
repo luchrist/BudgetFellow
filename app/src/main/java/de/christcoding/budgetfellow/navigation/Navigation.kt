@@ -1,25 +1,32 @@
 package de.christcoding.budgetfellow.navigation
 
+import android.content.Context
 import androidx.compose.runtime.Composable
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import de.christcoding.budgetfellow.viewmodels.MainViewModel
 import de.christcoding.budgetfellow.views.AddFirstIncomeScreen
+import de.christcoding.budgetfellow.views.BudgetsIntroScreen
 import de.christcoding.budgetfellow.views.OutcomesIntroScreen
 
 @Composable
-fun Navigation(mainViewModel: MainViewModel = viewModel(),
+fun Navigation(context: Context,
+               mainViewModel: MainViewModel = MainViewModel(context = context),
                navController: NavHostController = rememberNavController()) {
 
-    NavHost(navController = navController, startDestination = Screen.WelcomeAndIncomes.route) {
+    val startDestination = mainViewModel.getCurrentStartScreen()
+
+    NavHost(navController = navController, startDestination = startDestination) {
         composable(Screen.WelcomeAndIncomes.route) {
             AddFirstIncomeScreen(mainViewModel, navController)
         }
         composable(Screen.Outcomes.route) {
-            OutcomesIntroScreen()
+            OutcomesIntroScreen(mainViewModel, navController)
+        }
+        composable(Screen.SetBudgets.route) {
+            BudgetsIntroScreen()
         }
     }
 }

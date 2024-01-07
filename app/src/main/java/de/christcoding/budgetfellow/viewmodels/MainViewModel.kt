@@ -1,10 +1,11 @@
 package de.christcoding.budgetfellow.viewmodels
 
-import android.app.Application
+import android.content.Context
+import android.content.SharedPreferences
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import de.christcoding.budgetfellow.AddTransactionEvent
 import de.christcoding.budgetfellow.R
@@ -16,6 +17,9 @@ import de.christcoding.budgetfellow.data.TransactionRepository
 import de.christcoding.budgetfellow.domain.ValidationEvent
 import de.christcoding.budgetfellow.domain.use_case.ValidateAmount
 import de.christcoding.budgetfellow.domain.use_case.ValidatePeriod
+import de.christcoding.budgetfellow.domain.use_case.ValidationResult
+import de.christcoding.budgetfellow.navigation.Screen
+import de.christcoding.budgetfellow.utils.Constants
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -25,23 +29,25 @@ class MainViewModel(
     private val validateAmount: ValidateAmount = ValidateAmount(),
     private val validatePeriod: ValidatePeriod = ValidatePeriod(),
     private val transactionRepository: TransactionRepository = Graph.transactionRepository,
-    application: Application
-) : AndroidViewModel(application) {
+    private val context: Context
+) : ViewModel() {
 
     private val validationEventChannel = Channel<ValidationEvent>()
     val validationEvents = validationEventChannel.receiveAsFlow()
-
+    val sp: SharedPreferences = context.getSharedPreferences("budget_fellow", 0)
+    var firstIncome by mutableStateOf(sp.getBoolean("first_income", true))
     var state by mutableStateOf(TransactionState())
-    var datePicked by mutableStateOf(application.getString(R.string.date))
+    var datePicked by mutableStateOf(context.getString(R.string.date))
     var recurring by mutableStateOf(false)
     var recurringPeriod by mutableStateOf("1")
-    var periodUnit by mutableStateOf(application.getString(R.string.day))
-    var title by mutableStateOf(application.getString(R.string.hi_i_am_your_budget_fellow_i_will_help_you_reach_your_financial_goals))
-    var stepDesc by mutableStateOf(application.getString(R.string.let_s_start_by_adding_your_first_income))
-    var skip by mutableStateOf(application.getString(R.string.skip))
+    var periodUnit by mutableStateOf(context.getString(R.string.day))
+    var stepDesc by mutableStateOf(context.getString(R.string.let_s_start_by_adding_your_first_income))
+    var skip by mutableStateOf(context.getString(R.string.skip))
     var transactionName by mutableStateOf("")
     var transactionDescription by mutableStateOf("")
     var amount by mutableStateOf("")
+    var id by mutableStateOf(-2L)
+    var rowsUpdated by mutableStateOf(-1)
 
     fun onEvent(event: AddTransactionEvent) {
         when (event) {
@@ -59,7 +65,7 @@ class MainViewModel(
 
     private fun submitData() {
         val amountResult = validateAmount.execute(state.amount)
-        val periodResult = validatePeriod.execute(state.period)
+        val periodResult = if (recurring)validatePeriod.execute(state.period) else ValidationResult(true)
 
         val hasError = listOf(
             amountResult,
@@ -104,6 +110,11 @@ class MainViewModel(
     }
     private fun getTransaction(converter: (String) -> Double): Transaction {
         val value = if(amount.isBlank()) 0.0 else converter(amount)
+        try {
+            recurringPeriod.toInt()
+        } catch (e: NumberFormatException) {
+            recurringPeriod = "0"
+        }
         return Transaction(
             name = transactionName,
             description = transactionDescription,
@@ -117,22 +128,53 @@ class MainViewModel(
 
     private fun addTransaction(transaction: Transaction) {
         viewModelScope.launch(Dispatchers.IO) {
-            transactionRepository.addATransaction(transaction)
+            id = transactionRepository.addATransaction(transaction)
+            if (id > -1L) resetForm()
         }
+    }
+
+    private fun resetForm() {
+        transactionName = ""
+        transactionDescription = ""
+        amount = ""
+        datePicked = context.getString(R.string.date)
+        recurring = false
+        recurringPeriod = "1"
+        periodUnit = context.getString(R.string.day)
     }
 
     private fun updateTransaction(transaction: Transaction) {
         viewModelScope.launch(Dispatchers.IO) {
-            transactionRepository.updateATransaction(transaction)
+            rowsUpdated = transactionRepository.updateATransaction(transaction)
+            if (rowsUpdated > 0) resetForm()
         }
     }
 
     fun handleSubmit(mode: TransactionMode) {
         when(mode) {
-            TransactionMode.IncomeAdd -> addIncome()
-            TransactionMode.ExpenseAdd -> addExpense()
+            TransactionMode.IncomeAdd -> {
+                addIncome()
+                if (firstIncome) {
+                    firstIncome = false
+                    stepDesc = context.getString(R.string.do_you_want_to_add_another_income)
+                    skip = context.getString(R.string.next)
+                    sp.edit().putBoolean("first_income", false).apply()
+                }
+            }
+            TransactionMode.ExpenseAdd -> {
+                addExpense()
+                skip = context.getString(R.string.next)
+            }
             TransactionMode.IncomeEdit -> updateIncome()
             TransactionMode.ExpenseEdit -> updateExpense()
         }
+    }
+
+    fun getCurrentStartScreen(): String{
+        return sp.getString(Constants.SCREEN, Screen.WelcomeAndIncomes.route) ?: Screen.WelcomeAndIncomes.route
+    }
+
+    fun updateStartingScreen(route: String) {
+        sp.edit().putString(Constants.SCREEN, route).apply()
     }
 }

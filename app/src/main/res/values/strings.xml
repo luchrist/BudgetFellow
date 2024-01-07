@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">BudgetFellow</string>
     <string name="name_of_income">Name of income</string>
-    <string name="let_s_start_by_adding_your_first_income">Let\'s start by adding your first income.</string>
+    <string name="let_s_start_by_adding_your_first_income">Let\'s start by adding your first fix income.</string>
     <string name="hi_i_am_your_budget_fellow_i_will_help_you_reach_your_financial_goals">Hi I am your Budget Fellow!\nI will help you reach your financial goals.</string>
     <string name="description">Description</string>
     <string name="value">Value</string>
@@ -22,4 +22,7 @@
     <string name="invalid_amount_field">only numbers allowed</string>
     <string name="amount">Amount</string>
     <string name="invalid_period_field">input must be a number</string>
+    <string name="do_you_want_to_add_another_income">Do you want to add another income?</string>
+    <string name="next">Next</string>
+    <string name="almost_done_now_add_all_your_fix_expenses">Almost done! Now add all your fix expenses.</string>
 </resources>

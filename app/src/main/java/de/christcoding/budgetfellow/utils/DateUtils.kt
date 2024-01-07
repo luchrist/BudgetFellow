@@ -14,7 +14,13 @@ class DateUtils {
         }
 
         fun getPluralUnit(context: Context, unit: String, amount: String): String {
-            val amountInt = if(amount.isBlank()) 0 else amount.toInt()
+            val amountInt = if(amount.isBlank()) 0 else {
+                try {
+                    amount.toInt()
+                } catch (e: NumberFormatException) {
+                    0
+                }
+            }
             return if (amountInt == 1) {
                 unit
             } else {

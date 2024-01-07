@@ -49,10 +49,12 @@ import de.christcoding.budgetfellow.viewmodels.MainViewModel
 import de.christcoding.budgetfellow.R
 import de.christcoding.budgetfellow.TransactionMode
 import de.christcoding.budgetfellow.navigation.Screen
+import de.christcoding.budgetfellow.utils.Constants
 import de.christcoding.budgetfellow.utils.DateUtils
 
 @Composable
 fun AddFirstIncomeScreen(mainViewModel: MainViewModel, navController: NavHostController) {
+    val ctx = LocalContext.current
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top,
@@ -60,24 +62,20 @@ fun AddFirstIncomeScreen(mainViewModel: MainViewModel, navController: NavHostCon
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        Text(
-            text = mainViewModel.title,
-            style = MaterialTheme.typography.headlineMedium
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-
+        if (mainViewModel.firstIncome) {
+            Text(
+                text = ctx.getString(R.string.hi_i_am_your_budget_fellow_i_will_help_you_reach_your_financial_goals),
+                style = MaterialTheme.typography.headlineMedium
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            mainViewModel.stepDesc = ctx.getString(R.string.let_s_start_by_adding_your_first_income)
+        } else {
+            mainViewModel.stepDesc = ctx.getString(R.string.do_you_want_to_add_another_income)
+        }
         AddEditInOrOutcome(mainViewModel, TransactionMode.IncomeAdd)
     }
-    Column(
-        horizontalAlignment = Alignment.End,
-        verticalArrangement = Arrangement.Bottom,
-        modifier = Modifier.padding(8.dp)
-    ) {
-        OutlinedButton(
-            onClick = { navController.navigate(Screen.Outcomes.route) },
-        ) {
-            Icon(Icons.Default.ArrowForward, contentDescription = "next")
-            Text(text = mainViewModel.skip)
-        }
-    }
+    NextSkipButton(mainViewModel = mainViewModel, onClickActions = {
+        navController.navigate(Screen.Outcomes.route)
+        mainViewModel.updateStartingScreen(Screen.Outcomes.route)
+    })
 }
