@@ -62,7 +62,7 @@ fun CategoryDropDown(mainViewModel: MainViewModel) {
             ExposedDropdownMenu(
                 expanded = expanded,
                 onDismissRequest = { expanded = false }) {
-                mainViewModel.categories?.forEach { category ->
+                mainViewModel.categories.forEach { category ->
                     DropdownMenuItem(
                         text = {
                             Text(

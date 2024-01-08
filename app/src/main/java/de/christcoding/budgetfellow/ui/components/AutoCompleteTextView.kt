@@ -64,7 +64,7 @@ fun AutoCompleteTextView(mainViewModel: MainViewModel) {
     // Category Field
     Column(
         modifier = Modifier
-            .padding(30.dp)
+            .padding(8.dp)
             .fillMaxWidth()
             .clickable(
                 interactionSource = interactionSource,
@@ -86,7 +86,7 @@ fun AutoCompleteTextView(mainViewModel: MainViewModel) {
                             textFieldSize = coordinates.size.toSize()
                         },
                     shape = RoundedCornerShape(16.dp),
-                    label = {Text(text = stringResource(id = R.string.category))},
+                    label = { Text(text = stringResource(id = R.string.category)) },
                     value = mainViewModel.selectedCategory,
                     onValueChange = {
                         mainViewModel.selectedCategory = it
@@ -159,8 +159,6 @@ fun AutoCompleteTextView(mainViewModel: MainViewModel) {
         }
 
     }
-
-
 }
 
 @Composable
