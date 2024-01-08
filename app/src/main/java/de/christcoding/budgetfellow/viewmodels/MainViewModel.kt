@@ -57,7 +57,7 @@ class MainViewModel(
 
     var categories: List<String> = sp.getStringSet("categories", listOf("Salary","House", "Food", "Clothing", "Transport", "Self Care","Subscriptions", "Luxury", "Vacation").toSet())
         ?.toList() ?: listOf()
-    var selectedCategory by mutableStateOf(categories?.first() ?: "")
+    var selectedCategory by mutableStateOf("")
 
     val budgets = listOf(
         Budget("Food", 100.0, 20.0, CardColors(Color.Cyan, Color.Blue, Color.Gray, Color.Gray)),

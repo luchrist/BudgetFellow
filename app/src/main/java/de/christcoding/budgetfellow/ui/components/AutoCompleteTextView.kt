@@ -20,6 +20,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -74,29 +75,18 @@ fun AutoCompleteTextView(mainViewModel: MainViewModel) {
             )
     ) {
 
-        Text(
-            modifier = Modifier.padding(start = 3.dp, bottom = 2.dp),
-            text = stringResource(id = R.string.category),
-            fontSize = 16.sp,
-            color = Color.Black,
-            fontWeight = FontWeight.Medium
-        )
-
         Column(modifier = Modifier.fillMaxWidth()) {
 
             Row(modifier = Modifier.fillMaxWidth()) {
-                TextField(
+                OutlinedTextField(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(heightTextFields)
-                        .border(
-                            width = 1.8.dp,
-                            color = Color.Black,
-                            shape = RoundedCornerShape(15.dp)
-                        )
                         .onGloballyPositioned { coordinates ->
                             textFieldSize = coordinates.size.toSize()
                         },
+                    shape = RoundedCornerShape(16.dp),
+                    label = {Text(text = stringResource(id = R.string.category))},
                     value = mainViewModel.selectedCategory,
                     onValueChange = {
                         mainViewModel.selectedCategory = it
@@ -108,7 +98,7 @@ fun AutoCompleteTextView(mainViewModel: MainViewModel) {
                     ),
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Text,
-                        imeAction = ImeAction.Done
+                        imeAction = ImeAction.Next
                     ),
                     singleLine = true,
                     trailingIcon = {
@@ -141,8 +131,7 @@ fun AutoCompleteTextView(mainViewModel: MainViewModel) {
                             items(
                                 mainViewModel.categories.filter {
                                     it.lowercase()
-                                        .contains(mainViewModel.selectedCategory.lowercase()) || it.lowercase()
-                                        .contains("others")
+                                        .contains(mainViewModel.selectedCategory.lowercase())
                                 }
                                     .sorted()
                             ) {
