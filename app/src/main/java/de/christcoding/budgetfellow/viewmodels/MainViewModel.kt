@@ -2,9 +2,11 @@ package de.christcoding.budgetfellow.viewmodels
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.compose.material3.CardColors
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import de.christcoding.budgetfellow.AddTransactionEvent
@@ -12,8 +14,9 @@ import de.christcoding.budgetfellow.R
 import de.christcoding.budgetfellow.TransactionMode
 import de.christcoding.budgetfellow.TransactionState
 import de.christcoding.budgetfellow.data.Graph
-import de.christcoding.budgetfellow.data.Transaction
+import de.christcoding.budgetfellow.data.models.Transaction
 import de.christcoding.budgetfellow.data.TransactionRepository
+import de.christcoding.budgetfellow.data.models.Budget
 import de.christcoding.budgetfellow.domain.ValidationEvent
 import de.christcoding.budgetfellow.domain.use_case.ValidateAmount
 import de.christcoding.budgetfellow.domain.use_case.ValidatePeriod
@@ -48,6 +51,19 @@ class MainViewModel(
     var amount by mutableStateOf("")
     var id by mutableStateOf(-2L)
     var rowsUpdated by mutableStateOf(-1)
+
+    var currency by mutableStateOf("€")
+    var savingsPerMonth by mutableStateOf(0.0)
+
+    var categories: List<String> = sp.getStringSet("categories", listOf("Salary","House", "Food", "Clothing", "Transport", "Self Care","Subscriptions", "Luxury", "Vacation").toSet())
+        ?.toList() ?: listOf()
+    var selectedCategory by mutableStateOf(categories?.first() ?: "")
+
+    val budgets = listOf(
+        Budget("Food", 100.0, 20.0, CardColors(Color.Cyan, Color.Blue, Color.Gray, Color.Gray)),
+        Budget("House", 1000.0, 890.0, CardColors(Color.Magenta, Color.DarkGray, Color.Gray, Color.Gray)),
+        Budget("Clothing", 100.0, 0.0, CardColors(Color.Green, Color.Magenta, Color.Gray, Color.Gray))
+    )
 
     fun onEvent(event: AddTransactionEvent) {
         when (event) {

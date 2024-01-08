@@ -1,5 +1,7 @@
 package de.christcoding.budgetfellow.data
 
+import de.christcoding.budgetfellow.data.models.Transaction
+
 class TransactionRepository(private val transactionDao: TransactionDao) {
 
     suspend fun addATransaction(transaction: Transaction): Long {

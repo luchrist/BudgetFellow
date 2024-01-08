@@ -2,6 +2,7 @@ package de.christcoding.budgetfellow.data
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import de.christcoding.budgetfellow.data.models.Transaction
 
 @Database(
     entities = [Transaction::class],

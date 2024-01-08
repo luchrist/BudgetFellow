@@ -25,4 +25,7 @@
     <string name="do_you_want_to_add_another_income">Do you want to add another income?</string>
     <string name="next">Next</string>
     <string name="almost_done_now_add_all_your_fix_expenses">Almost done! Now add all your fix expenses.</string>
+    <string name="create_budget">Create Budget</string>
+    <string name="spent">Spent</string>
+    <string name="category">Category</string>
 </resources>

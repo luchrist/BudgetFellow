@@ -1,4 +1,4 @@
-package de.christcoding.budgetfellow.data
+package de.christcoding.budgetfellow.data.models
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

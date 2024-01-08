@@ -26,7 +26,7 @@ fun Navigation(context: Context,
             OutcomesIntroScreen(mainViewModel, navController)
         }
         composable(Screen.SetBudgets.route) {
-            BudgetsIntroScreen()
+            BudgetsIntroScreen(mainViewModel, navController)
         }
     }
 }
