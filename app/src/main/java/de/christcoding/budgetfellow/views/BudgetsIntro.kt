@@ -17,6 +17,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import de.christcoding.budgetfellow.R
+import de.christcoding.budgetfellow.navigation.Screen
 import de.christcoding.budgetfellow.ui.components.BudgetCard
 import de.christcoding.budgetfellow.ui.components.SubTitle
 import de.christcoding.budgetfellow.ui.components.Title
@@ -38,4 +39,8 @@ Column {
         Text(text = stringResource(id = R.string.create_budget))
     }
 }
+    NextSkipButton(mainViewModel = mainViewModel, onClickActions = {
+        navController.navigate(Screen.SetupComplete.route)
+        mainViewModel.updateStartingScreen(Screen.SetupComplete.route)
+    })
 }
