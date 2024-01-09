@@ -20,6 +20,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -37,9 +38,11 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.toSize
+import de.christcoding.budgetfellow.AddTransactionEvent
 import de.christcoding.budgetfellow.R
 import de.christcoding.budgetfellow.viewmodels.MainViewModel
 
@@ -60,6 +63,7 @@ fun AutoCompleteTextView(mainViewModel: MainViewModel) {
     val interactionSource = remember {
         MutableInteractionSource()
     }
+    val state = mainViewModel.state
 
     // Category Field
     Column(
@@ -87,9 +91,11 @@ fun AutoCompleteTextView(mainViewModel: MainViewModel) {
                         },
                     shape = RoundedCornerShape(16.dp),
                     label = { Text(text = stringResource(id = R.string.category)) },
+                    isError = state.catError != null,
                     value = mainViewModel.selectedCategory,
                     onValueChange = {
                         mainViewModel.selectedCategory = it
+                        mainViewModel.onEvent(AddTransactionEvent.OnCategoryChanged(it))
                         expanded = true
                     },
                     textStyle = TextStyle(
@@ -156,6 +162,9 @@ fun AutoCompleteTextView(mainViewModel: MainViewModel) {
                 }
             }
 
+            if(state.catError != null) {
+                Text(text = state.catError, color = MaterialTheme.colorScheme.error, textAlign = TextAlign.Start, modifier = Modifier.fillMaxWidth())
+            }
         }
 
     }

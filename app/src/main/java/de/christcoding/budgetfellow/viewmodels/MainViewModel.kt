@@ -19,6 +19,7 @@ import de.christcoding.budgetfellow.data.TransactionRepository
 import de.christcoding.budgetfellow.data.models.Budget
 import de.christcoding.budgetfellow.domain.ValidationEvent
 import de.christcoding.budgetfellow.domain.use_case.ValidateAmount
+import de.christcoding.budgetfellow.domain.use_case.ValidateCategory
 import de.christcoding.budgetfellow.domain.use_case.ValidatePeriod
 import de.christcoding.budgetfellow.domain.use_case.ValidationResult
 import de.christcoding.budgetfellow.navigation.Screen
@@ -31,6 +32,7 @@ import kotlinx.coroutines.launch
 class MainViewModel(
     private val validateAmount: ValidateAmount = ValidateAmount(),
     private val validatePeriod: ValidatePeriod = ValidatePeriod(),
+    private val validateCategory: ValidateCategory = ValidateCategory(),
     private val transactionRepository: TransactionRepository = Graph.transactionRepository,
     private val context: Context
 ) : ViewModel() {
@@ -55,8 +57,8 @@ class MainViewModel(
     var currency by mutableStateOf("€")
     var savingsPerMonth by mutableStateOf(0.0)
 
-    var categories: List<String> = sp.getStringSet("categories", listOf("Salary","House", "Food", "Clothing", "Transport", "Self Care","Subscriptions", "Luxury", "Vacation").toSet())
-        ?.toList() ?: listOf()
+    var categories: MutableList<String> = (sp.getStringSet(Constants.KEY_CATEGORIES, listOf("Salary","House", "Food", "Clothing", "Transport", "Self Care","Subscriptions", "Luxury", "Vacation").toSet())
+        ?.toMutableList() ?: mutableListOf())
     var selectedCategory by mutableStateOf("")
 
     val budgets = listOf(
@@ -73,6 +75,9 @@ class MainViewModel(
             is AddTransactionEvent.OnPeriodChanged -> {
                 state = state.copy(period = event.period)
             }
+            is AddTransactionEvent.OnCategoryChanged -> {
+                state = state.copy(category = event.category)
+            }
             is AddTransactionEvent.OnAddClicked -> {
                 submitData()
             }
@@ -82,16 +87,19 @@ class MainViewModel(
     private fun submitData() {
         val amountResult = validateAmount.execute(state.amount)
         val periodResult = if (recurring)validatePeriod.execute(state.period) else ValidationResult(true)
+        val catResult = validateCategory.execute(state.category)
 
         val hasError = listOf(
             amountResult,
-            periodResult
+            periodResult,
+            catResult
         ).any { !it.success }
 
         if(hasError) {
             state = state.copy(
                 amountError = amountResult.error,
-                periodError = periodResult.error
+                periodError = periodResult.error,
+                catError = catResult.error
             )
             return
         }
@@ -131,9 +139,15 @@ class MainViewModel(
         } catch (e: NumberFormatException) {
             recurringPeriod = "0"
         }
+        selectedCategory = if (selectedCategory.isBlank()) "Others" else selectedCategory
+        if (!categories.contains(selectedCategory)) {
+            categories.add(selectedCategory)
+            sp.edit().putStringSet(Constants.KEY_CATEGORIES, categories.toSet()).apply()
+        }
         return Transaction(
             name = transactionName,
             description = transactionDescription,
+            category = selectedCategory,
             amount = value,
             date = datePicked,
             recurring = recurring,
@@ -151,6 +165,7 @@ class MainViewModel(
 
     private fun resetForm() {
         transactionName = ""
+        selectedCategory = ""
         transactionDescription = ""
         amount = ""
         datePicked = context.getString(R.string.date)
