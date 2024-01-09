@@ -14,9 +14,9 @@ import de.christcoding.budgetfellow.R
 import de.christcoding.budgetfellow.TransactionMode
 import de.christcoding.budgetfellow.TransactionState
 import de.christcoding.budgetfellow.data.Graph
-import de.christcoding.budgetfellow.data.models.Transaction
 import de.christcoding.budgetfellow.data.TransactionRepository
 import de.christcoding.budgetfellow.data.models.Budget
+import de.christcoding.budgetfellow.data.models.Transaction
 import de.christcoding.budgetfellow.domain.ValidationEvent
 import de.christcoding.budgetfellow.domain.use_case.ValidateAmount
 import de.christcoding.budgetfellow.domain.use_case.ValidateCategory
@@ -106,7 +106,6 @@ class MainViewModel(
         viewModelScope.launch {
             validationEventChannel.send(ValidationEvent.Success)
         }
-
     }
 
     private fun addIncome() {
@@ -172,6 +171,11 @@ class MainViewModel(
         recurring = false
         recurringPeriod = "1"
         periodUnit = context.getString(R.string.day)
+        resetValidationState()
+    }
+
+    private fun resetValidationState() {
+        state = TransactionState()
     }
 
     private fun updateTransaction(transaction: Transaction) {
