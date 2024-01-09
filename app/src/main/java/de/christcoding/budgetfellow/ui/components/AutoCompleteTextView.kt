@@ -143,6 +143,7 @@ fun AutoCompleteTextView(mainViewModel: MainViewModel) {
                             ) {
                                 Category(title = it) { title ->
                                     mainViewModel.selectedCategory = title
+                                    mainViewModel.onEvent(AddTransactionEvent.OnCategoryChanged(title))
                                     expanded = false
                                 }
                             }
@@ -152,6 +153,7 @@ fun AutoCompleteTextView(mainViewModel: MainViewModel) {
                             ) {
                                 Category(title = it) { title ->
                                     mainViewModel.selectedCategory = title
+                                    mainViewModel.onEvent(AddTransactionEvent.OnCategoryChanged(title))
                                     expanded = false
                                 }
                             }
