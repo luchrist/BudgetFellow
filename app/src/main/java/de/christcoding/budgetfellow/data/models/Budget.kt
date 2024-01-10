@@ -2,5 +2,13 @@ package de.christcoding.budgetfellow.data.models
 
 import androidx.compose.material3.CardColors
 import androidx.compose.ui.graphics.Color
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 
-data class Budget(val category: String, val amount: Double, val spent: Double, val colors: CardColors)
+@Entity(tableName="budget-table")
+data class Budget(
+    @PrimaryKey(autoGenerate = true)
+    val id: Long = 0L,
+    val category: String,
+    val amount: Double,
+    val spent: Double)

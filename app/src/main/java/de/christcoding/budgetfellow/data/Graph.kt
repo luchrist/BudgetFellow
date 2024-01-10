@@ -11,6 +11,10 @@ object Graph {
         TransactionRepository(transactionDao = database.transactionDao())
     }
 
+    val budgetRepository by lazy{
+        BudgetRepository(budgetDao = database.budgetDao())
+    }
+
     fun provide(context: Context) {
         database = Room.databaseBuilder(context, Database::class.java, Constants.DATABASE_NAME).build()
     }

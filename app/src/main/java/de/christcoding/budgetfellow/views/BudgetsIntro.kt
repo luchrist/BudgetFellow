@@ -29,8 +29,9 @@ Column {
     Title(title = "SET YOUR BUDGETS")
     SubTitle(subTitle = "Edit existing budgets or create new ones. You can always change this later again")
     Text(text = "You will save ${mainViewModel.savingsPerMonth} ${mainViewModel.currency} per month")
+    val budgets = mainViewModel.budgets
     LazyVerticalGrid(columns = GridCells.Fixed(2)) {
-       items(mainViewModel.budgets) { budget ->
+       items(budgets) { budget ->
            BudgetCard(budget = budget)
        }
     }
