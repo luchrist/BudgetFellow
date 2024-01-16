@@ -49,15 +49,14 @@ import de.christcoding.budgetfellow.AddTransactionEvent
 import de.christcoding.budgetfellow.R
 import de.christcoding.budgetfellow.TransactionMode
 import de.christcoding.budgetfellow.domain.ValidationEvent
-import de.christcoding.budgetfellow.ui.components.CategoryDropDown
 import de.christcoding.budgetfellow.utils.DateUtils
-import de.christcoding.budgetfellow.viewmodels.MainViewModel
+import de.christcoding.budgetfellow.viewmodels.AddOrEditTransactionViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddEditInOrOutcome(mainViewModel: MainViewModel, mode: TransactionMode) {
+fun AddEditIncomeOrExpense(specificViewModel: AddOrEditTransactionViewModel, mode: TransactionMode) {
     val context = LocalContext.current
-    val state = mainViewModel.state
+    val state = specificViewModel.state
     var datePickerVisibility by remember {
         mutableStateOf(false)
     }
@@ -66,41 +65,36 @@ fun AddEditInOrOutcome(mainViewModel: MainViewModel, mode: TransactionMode) {
     }
     
     LaunchedEffect(key1 = context) {
-        mainViewModel.validationEvents.collect { event ->
+        specificViewModel.validationEvents.collect { event ->
             when (event) {
                 is ValidationEvent.Success -> {
-                    mainViewModel.handleSubmit(mode)
+                    specificViewModel.handleSubmit(mode)
                 }
             }
         }
     }
-
-    Text(
-        text = mainViewModel.stepDesc,
-        style = MaterialTheme.typography.titleMedium
-    )
     OutlinedTextField(
-        value = mainViewModel.transactionName,
-        onValueChange = {mainViewModel.transactionName = it},
+        value = specificViewModel.transactionName,
+        onValueChange = {specificViewModel.transactionName = it},
         shape = RoundedCornerShape(16.dp),
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
         label = { Text(text = stringResource(R.string.name)) })
-    AutoCompleteTextView(mainViewModel = mainViewModel)
+    AutoCompleteTextView(vm = specificViewModel)
     OutlinedTextField(
-        value = mainViewModel.transactionDescription,
+        value = specificViewModel.transactionDescription,
         shape = RoundedCornerShape(16.dp),
-        onValueChange = {mainViewModel.transactionDescription = it},
+        onValueChange = {specificViewModel.transactionDescription = it},
         minLines = 3,
         label = { Text(text = stringResource(R.string.description)) })
 
     Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
         Column {
             OutlinedTextField(
-                value = mainViewModel.amount,
+                value = specificViewModel.amount,
                 shape = RoundedCornerShape(16.dp),
                 onValueChange = {
-                    mainViewModel.amount = it
-                    mainViewModel.onEvent(AddTransactionEvent.OnAmountChanged(it))
+                    specificViewModel.amount = it
+                    specificViewModel.onEvent(AddTransactionEvent.OnAmountChanged(it))
                                 },
                 keyboardOptions = KeyboardOptions(
                     imeAction = ImeAction.Done,
@@ -121,7 +115,7 @@ fun AddEditInOrOutcome(mainViewModel: MainViewModel, mode: TransactionMode) {
     }
     Spacer(modifier = Modifier.height(8.dp))
     OutlinedButton(onClick = { datePickerVisibility = true }) {
-        Text(text = mainViewModel.datePicked, fontSize = 16.sp)
+        Text(text = specificViewModel.datePicked.toString(), fontSize = 16.sp)
     }
 
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
@@ -129,17 +123,17 @@ fun AddEditInOrOutcome(mainViewModel: MainViewModel, mode: TransactionMode) {
             modifier = Modifier.padding(top = 10.dp),
             text = stringResource(R.string.recurring)
         )
-        Switch(checked = mainViewModel.recurring, onCheckedChange = {
-            mainViewModel.recurring = it
+        Switch(checked = specificViewModel.recurring, onCheckedChange = {
+            specificViewModel.recurring = it
         })
     }
-    if (mainViewModel.recurring) {
+    if (specificViewModel.recurring) {
             Row() {
                 OutlinedTextField(
-                    value = mainViewModel.recurringPeriod,
+                    value = specificViewModel.recurringPeriod,
                     onValueChange = {
-                        mainViewModel.recurringPeriod = it
-                        mainViewModel.onEvent(AddTransactionEvent.OnPeriodChanged(it))
+                        specificViewModel.recurringPeriod = it
+                        specificViewModel.onEvent(AddTransactionEvent.OnPeriodChanged(it))
                     },
                     isError = state.periodError != null,
                     keyboardOptions = KeyboardOptions(
@@ -155,8 +149,8 @@ fun AddEditInOrOutcome(mainViewModel: MainViewModel, mode: TransactionMode) {
                     OutlinedTextField(
                         value = DateUtils.getPluralUnit(
                             context,
-                            mainViewModel.periodUnit,
-                            mainViewModel.recurringPeriod
+                            specificViewModel.periodUnit,
+                            specificViewModel.recurringPeriod
                         ),
                         onValueChange = {},
                         readOnly = true,
@@ -182,53 +176,53 @@ fun AddEditInOrOutcome(mainViewModel: MainViewModel, mode: TransactionMode) {
                                 text = {
                                     Text(
                                         text =
-                                        if (mainViewModel.recurringPeriod.toInt() == 1)
+                                        if (specificViewModel.recurringPeriod.toInt() == 1)
                                             stringResource(R.string.day)
                                         else
                                             stringResource(R.string.days)
                                     )
                                 },
                                 onClick = {
-                                    mainViewModel.periodUnit = context.resources.getString(R.string.day)
+                                    specificViewModel.periodUnit = context.resources.getString(R.string.day)
                                     isExpanded = false
                                 })
                             DropdownMenuItem(
                                 text = {
                                     Text(
-                                        text = if (mainViewModel.recurringPeriod.toInt() == 1) stringResource(
+                                        text = if (specificViewModel.recurringPeriod.toInt() == 1) stringResource(
                                             R.string.week) else stringResource(
                                             R.string.weeks
                                         )
                                     )
                                 },
                                 onClick = {
-                                    mainViewModel.periodUnit = context.resources.getString(R.string.week)
+                                    specificViewModel.periodUnit = context.resources.getString(R.string.week)
                                     isExpanded = false
                                 })
                             DropdownMenuItem(
                                 text = {
                                     Text(
-                                        text = if (mainViewModel.recurringPeriod.toInt() == 1) stringResource(
+                                        text = if (specificViewModel.recurringPeriod.toInt() == 1) stringResource(
                                             R.string.month) else stringResource(
                                             R.string.months
                                         )
                                     )
                                 },
                                 onClick = {
-                                    mainViewModel.periodUnit = context.resources.getString(R.string.month)
+                                    specificViewModel.periodUnit = context.resources.getString(R.string.month)
                                     isExpanded = false
                                 })
                             DropdownMenuItem(
                                 text = {
                                     Text(
-                                        text = if (mainViewModel.recurringPeriod.toInt() == 1) stringResource(
+                                        text = if (specificViewModel.recurringPeriod.toInt() == 1) stringResource(
                                             R.string.year) else stringResource(
                                             R.string.years
                                         )
                                     )
                                 },
                                 onClick = {
-                                    mainViewModel.periodUnit = context.resources.getString(R.string.year)
+                                    specificViewModel.periodUnit = context.resources.getString(R.string.year)
                                     isExpanded = false
                                 })
                         }
@@ -240,7 +234,7 @@ fun AddEditInOrOutcome(mainViewModel: MainViewModel, mode: TransactionMode) {
             }
     }
     Spacer(modifier = Modifier.height(8.dp))
-    OutlinedButton(onClick = {mainViewModel.onEvent(AddTransactionEvent.OnAddClicked)}) {
+    OutlinedButton(onClick = {specificViewModel.onEvent(AddTransactionEvent.OnAddClicked)}) {
         Icon(Icons.Default.Add, contentDescription = "add income")
         Text(text = stringResource(R.string.add), fontSize = 18.sp)
     }
@@ -256,7 +250,7 @@ fun AddEditInOrOutcome(mainViewModel: MainViewModel, mode: TransactionMode) {
                 if (datePickerState.selectedDateMillis != null) {
                     date = DateUtils.convertMillisToDate(datePickerState.selectedDateMillis!!)
                 }
-                mainViewModel.datePicked = date
+                specificViewModel.datePicked = DateUtils.convertStringToDate(date)
             }, enabled = confirmEnabled.value) {
                 Text(text = stringResource(R.string.okay))
             }
@@ -264,18 +258,18 @@ fun AddEditInOrOutcome(mainViewModel: MainViewModel, mode: TransactionMode) {
             DatePicker(state = datePickerState)
         }
     }
-    if (mainViewModel.rowsUpdated > 0) {
+    if (specificViewModel.rowsUpdated > 0) {
         Toast.makeText(context, "Updated Successfully", Toast.LENGTH_SHORT).show()
-        mainViewModel.rowsUpdated = -1
-    } else if(mainViewModel.rowsUpdated == 0) {
+        specificViewModel.rowsUpdated = -1
+    } else if(specificViewModel.rowsUpdated == 0) {
         Toast.makeText(context, "Update Failed", Toast.LENGTH_SHORT).show()
-        mainViewModel.rowsUpdated = -1
+        specificViewModel.rowsUpdated = -1
     }
-    if (mainViewModel.id > -1L) {
+    if (specificViewModel.id > -1L) {
         Toast.makeText(context, "Added Successfully", Toast.LENGTH_SHORT).show()
-        mainViewModel.id = -2L
-    } else if(mainViewModel.id == -1L) {
+        specificViewModel.id = -2L
+    } else if(specificViewModel.id == -1L) {
         Toast.makeText(context, "Adding Failed", Toast.LENGTH_SHORT).show()
-        mainViewModel.id = -2L
+        specificViewModel.id = -2L
     }
 }

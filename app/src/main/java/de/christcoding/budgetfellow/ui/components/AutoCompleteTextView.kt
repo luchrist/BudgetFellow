@@ -42,12 +42,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.toSize
+import androidx.lifecycle.ViewModel
 import de.christcoding.budgetfellow.AddTransactionEvent
 import de.christcoding.budgetfellow.R
+import de.christcoding.budgetfellow.viewmodels.AddOrEditTransactionViewModel
 import de.christcoding.budgetfellow.viewmodels.MainViewModel
 
 @Composable
-fun AutoCompleteTextView(mainViewModel: MainViewModel) {
+fun AutoCompleteTextView(vm: AddOrEditTransactionViewModel) {
 
     val heightTextFields by remember {
         mutableStateOf(55.dp)
@@ -63,7 +65,7 @@ fun AutoCompleteTextView(mainViewModel: MainViewModel) {
     val interactionSource = remember {
         MutableInteractionSource()
     }
-    val state = mainViewModel.state
+    val state = vm.state
 
     // Category Field
     Column(
@@ -92,10 +94,10 @@ fun AutoCompleteTextView(mainViewModel: MainViewModel) {
                     shape = RoundedCornerShape(16.dp),
                     label = { Text(text = stringResource(id = R.string.category)) },
                     isError = state.catError != null,
-                    value = mainViewModel.selectedCategory,
+                    value = vm.selectedCategory,
                     onValueChange = {
-                        mainViewModel.selectedCategory = it
-                        mainViewModel.onEvent(AddTransactionEvent.OnCategoryChanged(it))
+                        vm.selectedCategory = it
+                        vm.onEvent(AddTransactionEvent.OnCategoryChanged(it))
                         expanded = true
                     },
                     textStyle = TextStyle(
@@ -133,27 +135,27 @@ fun AutoCompleteTextView(mainViewModel: MainViewModel) {
                         modifier = Modifier.heightIn(max = 150.dp),
                     ) {
 
-                        if (mainViewModel.selectedCategory.isNotEmpty()) {
+                        if (vm.selectedCategory.isNotEmpty()) {
                             items(
-                                mainViewModel.categories.filter {
+                                vm.categories.filter {
                                     it.lowercase()
-                                        .contains(mainViewModel.selectedCategory.lowercase())
+                                        .contains(vm.selectedCategory.lowercase())
                                 }
                                     .sorted()
                             ) {
                                 Category(title = it) { title ->
-                                    mainViewModel.selectedCategory = title
-                                    mainViewModel.onEvent(AddTransactionEvent.OnCategoryChanged(title))
+                                    vm.selectedCategory = title
+                                    vm.onEvent(AddTransactionEvent.OnCategoryChanged(title))
                                     expanded = false
                                 }
                             }
                         } else {
                             items(
-                                mainViewModel.categories.sorted()
+                                vm.categories.sorted()
                             ) {
                                 Category(title = it) { title ->
-                                    mainViewModel.selectedCategory = title
-                                    mainViewModel.onEvent(AddTransactionEvent.OnCategoryChanged(title))
+                                    vm.selectedCategory = title
+                                    vm.onEvent(AddTransactionEvent.OnCategoryChanged(title))
                                     expanded = false
                                 }
                             }

@@ -44,6 +44,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import de.christcoding.budgetfellow.viewmodels.MainViewModel
 import de.christcoding.budgetfellow.R
@@ -51,10 +52,13 @@ import de.christcoding.budgetfellow.TransactionMode
 import de.christcoding.budgetfellow.navigation.Screen
 import de.christcoding.budgetfellow.utils.Constants
 import de.christcoding.budgetfellow.utils.DateUtils
+import de.christcoding.budgetfellow.utils.StartScreenState
+import de.christcoding.budgetfellow.viewmodels.IntroViewModel
 
 @Composable
-fun AddFirstIncomeScreen(mainViewModel: MainViewModel, navController: NavHostController) {
+fun AddFirstIncomeScreen(navController: NavHostController) {
     val ctx = LocalContext.current
+    val vm: IntroViewModel = viewModel()
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top,
@@ -62,20 +66,26 @@ fun AddFirstIncomeScreen(mainViewModel: MainViewModel, navController: NavHostCon
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        if (mainViewModel.firstIncome) {
+        if (vm.firstIncome) {
             Text(
                 text = ctx.getString(R.string.hi_i_am_your_budget_fellow_i_will_help_you_reach_your_financial_goals),
                 style = MaterialTheme.typography.headlineMedium
             )
             Spacer(modifier = Modifier.height(8.dp))
-            mainViewModel.stepDesc = ctx.getString(R.string.let_s_start_by_adding_your_first_income)
+            Text(
+                text = ctx.getString(R.string.let_s_start_by_adding_your_first_income),
+                style = MaterialTheme.typography.titleMedium
+            )
         } else {
-            mainViewModel.stepDesc = ctx.getString(R.string.do_you_want_to_add_another_income)
+            Text(
+                text = ctx.getString(R.string.do_you_want_to_add_another_income),
+                style = MaterialTheme.typography.titleMedium
+            )
         }
-        AddEditInOrOutcome(mainViewModel, TransactionMode.IncomeAdd)
+        AddEditIncomeOrExpense(vm, TransactionMode.IncomeAdd)
     }
-    NextSkipButton(mainViewModel = mainViewModel, onClickActions = {
+    NextSkipButton(onClickActions = {
         navController.navigate(Screen.Outcomes.route)
-        mainViewModel.updateStartingScreen(Screen.Outcomes.route)
+        StartScreenState(ctx).updateStartingScreen(Screen.Outcomes.route)
     })
 }

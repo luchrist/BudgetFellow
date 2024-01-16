@@ -16,15 +16,29 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+    primary = Primary,
+    background = Surface,
+    surfaceVariant = BackgroundElevated,
+    surface = Surface,
+    error = Destructive,
+    onPrimary = TextPrimary,
+    onSecondary = LabelSecondary,
+    onBackground = TextPrimary,
+    onSurface = TextPrimary,
+    onError = TextPrimary,
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
+    primary = Primary,
+    surface = White,
+    surfaceVariant = DividerColor,
+    background = White,
+    error = Destructive,
+    onPrimary = TextPrimary,
+    onSecondary = LabelSecondary,
+    onBackground = Black,
+    onSurface = Black,
+    onError = TextPrimary,
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),
@@ -65,6 +79,7 @@ fun BudgetFellowTheme(
     MaterialTheme(
         colorScheme = colorScheme,
         typography = Typography,
-        content = content
+        content = content,
+        shapes = Shapes
     )
 }

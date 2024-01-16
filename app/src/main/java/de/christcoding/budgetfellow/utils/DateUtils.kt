@@ -4,10 +4,29 @@ import android.content.Context
 import androidx.compose.ui.res.stringResource
 import de.christcoding.budgetfellow.R
 import java.text.DateFormat
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.Date
 
 class DateUtils {
     companion object {
+
+        fun formatDay(date: LocalDate): String {
+            val today = LocalDate.now()
+            val yesterday = today.minusDays(1)
+
+            return when {
+                date.isEqual(today) -> "Today"
+                date.isEqual(yesterday) -> "Yesterday"
+                date.year != today.year -> date.format(DateTimeFormatter.ofPattern("ddd, dd MMM yyyy"))
+                else -> date.format(DateTimeFormatter.ofPattern("E, dd MMM"))
+            }
+        }
+
+
+        fun convertStringToDate(date: String): LocalDate {
+            return LocalDate.parse(date)
+        }
         fun convertMillisToDate(millis: Long): String {
             val formatter = DateFormat.getDateInstance()
             return formatter.format(Date(millis))

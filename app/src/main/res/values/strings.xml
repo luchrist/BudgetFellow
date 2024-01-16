@@ -28,4 +28,7 @@
     <string name="create_budget">Create Budget</string>
     <string name="spent">Spent</string>
     <string name="category">Category</string>
+    <string name="done">Done</string>
+    <string name="setup_complete">Setup Complete</string>
+    <string name="keep_tracking_all_your_expenses_and_incomes_to_save_money_and_reach_your_financial_goals">Keep tracking all your expenses and incomes to save money and reach your financial goals</string>
 </resources>
