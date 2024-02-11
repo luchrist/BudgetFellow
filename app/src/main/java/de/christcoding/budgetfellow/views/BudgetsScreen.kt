@@ -21,14 +21,15 @@ import de.christcoding.budgetfellow.R
 import de.christcoding.budgetfellow.ui.components.BudgetCard
 import de.christcoding.budgetfellow.ui.components.SubTitle
 import de.christcoding.budgetfellow.ui.components.Title
+import de.christcoding.budgetfellow.viewmodels.AppViewModelProvider
 import de.christcoding.budgetfellow.viewmodels.ApplicationViewModel
 import de.christcoding.budgetfellow.viewmodels.BudgetsViewModel
 import de.christcoding.budgetfellow.viewmodels.MainViewModel
 
 @Composable
 fun BudgetsScreen() {
-    val appViewModel: ApplicationViewModel = viewModel()
-    val vm: BudgetsViewModel = viewModel()
+    val appViewModel: ApplicationViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    val vm: BudgetsViewModel = viewModel(factory = AppViewModelProvider.Factory)
     Column {
         Title(title = "SET YOUR BUDGETS")
         SubTitle(subTitle = "Edit existing budgets or create new ones. You can always change this later again")

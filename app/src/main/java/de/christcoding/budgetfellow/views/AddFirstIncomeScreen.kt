@@ -30,6 +30,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.currentCompositionLocalContext
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -53,12 +54,13 @@ import de.christcoding.budgetfellow.navigation.Screen
 import de.christcoding.budgetfellow.utils.Constants
 import de.christcoding.budgetfellow.utils.DateUtils
 import de.christcoding.budgetfellow.utils.StartScreenState
+import de.christcoding.budgetfellow.viewmodels.AppViewModelProvider
 import de.christcoding.budgetfellow.viewmodels.IntroViewModel
 
 @Composable
 fun AddFirstIncomeScreen(navController: NavHostController) {
     val ctx = LocalContext.current
-    val vm: IntroViewModel = viewModel()
+    val vm: IntroViewModel = viewModel(factory = AppViewModelProvider.Factory)
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top,
@@ -82,7 +84,7 @@ fun AddFirstIncomeScreen(navController: NavHostController) {
                 style = MaterialTheme.typography.titleMedium
             )
         }
-        AddEditIncomeOrExpense(vm, TransactionMode.IncomeAdd)
+        AddEditIncomeOrExpense(TransactionMode.IncomeAdd)
     }
     NextSkipButton(onClickActions = {
         navController.navigate(Screen.Outcomes.route)

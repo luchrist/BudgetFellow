@@ -14,12 +14,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import de.christcoding.budgetfellow.navigation.Screen
+import de.christcoding.budgetfellow.viewmodels.AppViewModelProvider
 import de.christcoding.budgetfellow.viewmodels.IntroViewModel
 import de.christcoding.budgetfellow.viewmodels.MainViewModel
 
 @Composable
 fun NextSkipButton(onClickActions: () -> Unit) {
-    val vm: IntroViewModel = viewModel()
+    val vm: IntroViewModel = viewModel(factory = AppViewModelProvider.Factory)
     Column(
         horizontalAlignment = Alignment.End,
         verticalArrangement = Arrangement.Bottom,

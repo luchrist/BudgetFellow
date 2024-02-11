@@ -10,13 +10,14 @@ import androidx.navigation.NavHostController
 import de.christcoding.budgetfellow.R
 import de.christcoding.budgetfellow.navigation.Screen
 import de.christcoding.budgetfellow.utils.StartScreenState
+import de.christcoding.budgetfellow.viewmodels.AppViewModelProvider
 import de.christcoding.budgetfellow.viewmodels.IntroViewModel
 import de.christcoding.budgetfellow.viewmodels.MainViewModel
 
 @Composable
-fun SetupCompleteScreen(navController: NavHostController) {
+fun SetupCompleteScreen(navigateToHome: () -> Unit) {
     val ctx = LocalContext.current
-    val vm: IntroViewModel = viewModel()
+    val vm: IntroViewModel = viewModel(factory = AppViewModelProvider.Factory)
     vm.skip = stringResource(R.string.done)
     Column {
         Text(text = stringResource(R.string.setup_complete))
@@ -24,7 +25,7 @@ fun SetupCompleteScreen(navController: NavHostController) {
     }
 
     NextSkipButton(onClickActions = {
-        navController.navigate(Screen.Transactions.route)
+        navigateToHome()
         StartScreenState(ctx).updateStartingScreen(Screen.Transactions.route)
         vm.introFinished()
     })

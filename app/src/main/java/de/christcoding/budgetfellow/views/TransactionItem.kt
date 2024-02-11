@@ -15,14 +15,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import de.christcoding.budgetfellow.data.models.Transaction
+import de.christcoding.budgetfellow.data.models.TransactionDetails
 import de.christcoding.budgetfellow.ui.theme.Shapes
+import de.christcoding.budgetfellow.viewmodels.AppViewModelProvider
 import de.christcoding.budgetfellow.viewmodels.ApplicationViewModel
 import java.text.DecimalFormat
 
 @Composable
-fun TransactionItem(transaction: Transaction) {
+fun TransactionItem(transaction: TransactionDetails) {
 
-    val appViewModel: ApplicationViewModel = viewModel()
+    val appViewModel: ApplicationViewModel = viewModel(factory = AppViewModelProvider.Factory)
     Column(
         modifier = Modifier
             .fillMaxWidth()

@@ -25,4 +25,10 @@ abstract class TransactionDao {
 
     @Query("Select * from `transaction-table` where id=:id")
     abstract fun getATransactionById(id:Long): Flow<Transaction>
+
+    @Query("Select * from `transaction-table` where recurring")
+    abstract fun getRecurringTransactions(): Flow<List<Transaction>>
+
+    @Query("Select * from `transaction-table` where date between :start and :end")
+    abstract fun getTransactionsBetween(start: Long, end: Long): Flow<List<Transaction>>
 }

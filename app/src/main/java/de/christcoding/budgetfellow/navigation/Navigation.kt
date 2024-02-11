@@ -35,7 +35,7 @@ fun Navigation(context: Context,
             BudgetsIntroScreen(navController)
         }
         composable(Screen.SetupComplete.route) {
-            SetupCompleteScreen(navController)
+            SetupCompleteScreen(navigateToHome = { navController.navigate(Screen.Transactions.route) })
         }
         composable(Screen.BottomNavigationScreens.Transactions.bRoute) {
             TransactionsScreen()

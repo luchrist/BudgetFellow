@@ -1,5 +1,4 @@
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
@@ -11,7 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -23,7 +21,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
+import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -33,20 +31,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.toSize
-import androidx.lifecycle.ViewModel
 import de.christcoding.budgetfellow.AddTransactionEvent
-import de.christcoding.budgetfellow.R
 import de.christcoding.budgetfellow.viewmodels.AddOrEditTransactionViewModel
-import de.christcoding.budgetfellow.viewmodels.MainViewModel
 
 @Composable
 fun AutoCompleteTextView(vm: AddOrEditTransactionViewModel) {
@@ -85,6 +78,14 @@ fun AutoCompleteTextView(vm: AddOrEditTransactionViewModel) {
 
             Row(modifier = Modifier.fillMaxWidth()) {
                 OutlinedTextField(
+                    value = vm.selectedCategoryName,
+                    onValueChange =
+                    {
+                        vm.selectedCategoryName = it
+                        vm.onEvent(AddTransactionEvent.OnCategoryChanged(it))
+                        expanded = true
+                    },
+
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(heightTextFields)
@@ -92,14 +93,8 @@ fun AutoCompleteTextView(vm: AddOrEditTransactionViewModel) {
                             textFieldSize = coordinates.size.toSize()
                         },
                     shape = RoundedCornerShape(16.dp),
-                    label = { Text(text = stringResource(id = R.string.category)) },
+                    label = { Text(text = "Category") },
                     isError = state.catError != null,
-                    value = vm.selectedCategory,
-                    onValueChange = {
-                        vm.selectedCategory = it
-                        vm.onEvent(AddTransactionEvent.OnCategoryChanged(it))
-                        expanded = true
-                    },
                     textStyle = TextStyle(
                         color = Color.Black,
                         fontSize = 16.sp
@@ -135,16 +130,16 @@ fun AutoCompleteTextView(vm: AddOrEditTransactionViewModel) {
                         modifier = Modifier.heightIn(max = 150.dp),
                     ) {
 
-                        if (vm.selectedCategory.isNotEmpty()) {
+                        if (vm.selectedCategoryName.isNotEmpty()) {
                             items(
                                 vm.categories.filter {
-                                    it.lowercase()
-                                        .contains(vm.selectedCategory.lowercase())
+                                    it.name.lowercase()
+                                        .contains(vm.selectedCategoryName.lowercase())
                                 }
                                     .sorted()
                             ) {
-                                Category(title = it) { title ->
-                                    vm.selectedCategory = title
+                                Category(title = it.name) { title ->
+                                    vm.selectedCategoryName = title
                                     vm.onEvent(AddTransactionEvent.OnCategoryChanged(title))
                                     expanded = false
                                 }
@@ -153,8 +148,8 @@ fun AutoCompleteTextView(vm: AddOrEditTransactionViewModel) {
                             items(
                                 vm.categories.sorted()
                             ) {
-                                Category(title = it) { title ->
-                                    vm.selectedCategory = title
+                                Category(title = it.name) { title ->
+                                    vm.selectedCategoryName = title
                                     vm.onEvent(AddTransactionEvent.OnCategoryChanged(title))
                                     expanded = false
                                 }

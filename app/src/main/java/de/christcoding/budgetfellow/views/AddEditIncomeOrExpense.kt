@@ -45,16 +45,19 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import de.christcoding.budgetfellow.AddTransactionEvent
 import de.christcoding.budgetfellow.R
 import de.christcoding.budgetfellow.TransactionMode
 import de.christcoding.budgetfellow.domain.ValidationEvent
 import de.christcoding.budgetfellow.utils.DateUtils
 import de.christcoding.budgetfellow.viewmodels.AddOrEditTransactionViewModel
+import de.christcoding.budgetfellow.viewmodels.AppViewModelProvider
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddEditIncomeOrExpense(specificViewModel: AddOrEditTransactionViewModel, mode: TransactionMode) {
+fun AddEditIncomeOrExpense(mode: TransactionMode) {
+    val specificViewModel: AddOrEditTransactionViewModel = viewModel(factory = AppViewModelProvider.Factory)
     val context = LocalContext.current
     val state = specificViewModel.state
     var datePickerVisibility by remember {

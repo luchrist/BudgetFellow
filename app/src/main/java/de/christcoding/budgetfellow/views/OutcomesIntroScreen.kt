@@ -17,13 +17,14 @@ import de.christcoding.budgetfellow.R
 import de.christcoding.budgetfellow.TransactionMode
 import de.christcoding.budgetfellow.navigation.Screen
 import de.christcoding.budgetfellow.utils.StartScreenState
+import de.christcoding.budgetfellow.viewmodels.AppViewModelProvider
 import de.christcoding.budgetfellow.viewmodels.IntroViewModel
 import de.christcoding.budgetfellow.viewmodels.MainViewModel
 
 @Composable
 fun OutcomesIntroScreen(navController: NavHostController) {
     val ctx = LocalContext.current
-    val vm: IntroViewModel = viewModel()
+    val vm: IntroViewModel = viewModel(factory = AppViewModelProvider.Factory)
     vm.skip = stringResource(R.string.skip)
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -33,7 +34,7 @@ fun OutcomesIntroScreen(navController: NavHostController) {
             .padding(16.dp)
     ) {
         Text(text = stringResource(R.string.almost_done_now_add_all_your_fix_expenses))
-        AddEditIncomeOrExpense(specificViewModel = vm, mode = TransactionMode.ExpenseAdd)
+        AddEditIncomeOrExpense(mode = TransactionMode.ExpenseAdd)
     }
     NextSkipButton( onClickActions = {
         navController.navigate(Screen.SetBudgets.route)
