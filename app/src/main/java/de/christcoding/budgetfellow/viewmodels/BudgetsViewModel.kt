@@ -65,7 +65,10 @@ class BudgetsViewModel(
         }
     }
 
-    var budgetState: StateFlow<BudgetUiState> = flow {
+    var budgetState: BudgetUiState by mutableStateOf(BudgetUiState.Loading)
+        private set
+
+            /*StateFlow<BudgetUiState> = flow {
         while (true) {
             emit(getBudgetState())
             delay(1_000)
@@ -74,15 +77,15 @@ class BudgetsViewModel(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = BudgetUiState()
-    )
+    )*/
 
-    private fun getBudgetState(): BudgetUiState {
-        if(budgets.isEmpty() || categories.isEmpty() || transactions.isEmpty()) {
-            return BudgetUiState()
+    fun updateBudgetState() {
+        if(categories.isEmpty() || transactions.isEmpty()) {
+            budgetState = BudgetUiState.Loading
         }
         val budgetDetails: List<BudgetDetails> = getBudgets(budgets)
         val savingsPerMonth = calcSavingPerMonth(budgetDetails)
-        return BudgetUiState(budgets = budgetDetails, savingsPerMonth = savingsPerMonth)
+        budgetState = BudgetUiState.Success(budgets = budgetDetails, savingsPerMonth = savingsPerMonth)
     }
 
     private fun calcSavingPerMonth(budgetDetails: List<BudgetDetails>): Double {
@@ -190,4 +193,7 @@ class BudgetsViewModel(
     }
 }
 
-data class BudgetUiState(val budgets: List<BudgetDetails> = listOf(), val savingsPerMonth: Double = 0.0)
+sealed interface BudgetUiState {
+    data class Success(val budgets: List<BudgetDetails>, val savingsPerMonth: Double) : BudgetUiState
+    object Loading : BudgetUiState
+}
