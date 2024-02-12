@@ -11,7 +11,7 @@ import de.christcoding.budgetfellow.utils.Constants
 
 @Database(
     entities = [Transaction::class, Budget::class, Category::class],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class BudgetDatabase : RoomDatabase() {
@@ -27,6 +27,7 @@ abstract class BudgetDatabase : RoomDatabase() {
             // if the Instance is not null, return it, otherwise create a new database instance.
             return Instance ?: synchronized(this) {
                 Room.databaseBuilder(context, BudgetDatabase::class.java, Constants.DATABASE_NAME)
+                    .fallbackToDestructiveMigration()
                     .build()
                     .also { Instance = it }
             }

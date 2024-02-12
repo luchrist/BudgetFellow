@@ -1,58 +1,26 @@
 package de.christcoding.budgetfellow.views
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.currentCompositionLocalContext
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import de.christcoding.budgetfellow.viewmodels.MainViewModel
 import de.christcoding.budgetfellow.R
 import de.christcoding.budgetfellow.TransactionMode
 import de.christcoding.budgetfellow.navigation.Screen
 import de.christcoding.budgetfellow.utils.Constants
-import de.christcoding.budgetfellow.utils.DateUtils
 import de.christcoding.budgetfellow.utils.StartScreenState
 import de.christcoding.budgetfellow.viewmodels.AppViewModelProvider
 import de.christcoding.budgetfellow.viewmodels.IntroViewModel
@@ -60,7 +28,13 @@ import de.christcoding.budgetfellow.viewmodels.IntroViewModel
 @Composable
 fun AddFirstIncomeScreen(navController: NavHostController) {
     val ctx = LocalContext.current
+    val sp = ctx.getSharedPreferences(Constants.SP, 0)
+    val firstOpening by mutableStateOf( sp.getBoolean(Constants.FIRST_OPENING, true))
     val vm: IntroViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    if(firstOpening) {
+        vm.saveInitialCategoriesInDB()
+        sp.edit().putBoolean(Constants.FIRST_OPENING, false).apply()
+    }
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top,

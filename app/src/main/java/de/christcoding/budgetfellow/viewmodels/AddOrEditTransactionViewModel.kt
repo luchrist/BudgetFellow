@@ -4,6 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import de.christcoding.budgetfellow.AddTransactionEvent
@@ -20,7 +21,10 @@ import de.christcoding.budgetfellow.domain.use_case.ValidatePeriod
 import de.christcoding.budgetfellow.domain.use_case.ValidationResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import kotlin.random.Random
@@ -48,19 +52,14 @@ open class AddOrEditTransactionViewModel(
     var rowsUpdated by mutableStateOf(-1)
     var currency by mutableStateOf("€")
 
-    var categories: MutableList<Category> =
-        mutableListOf(
-            Category( name = "House", color = Color(0f, 0.016f, 0.98f, 0.5f), expense = true),
-            Category( name = "Food", color = Color(0.6f, 0.4f, 0.0f, 0.4f), expense = true),
-            Category( name = "Clothing", color = Color(0f, 0.79f, 0.98f, 0.36f), expense = true),
-            Category( name = "Transport", color = Color(1f, 0f, 0f, 0.4f), expense = true),
-            Category( name = "Self Care", color = Color(1f, 0.1f, 0.7f, 0.2f), expense = true),
-            Category( name = "Subscriptions", color = Color(0.5f, 0.5f, 0.5f, 0.36f), expense = true),
-            Category( name = "Luxury", color = Color(0.98f, 0.8f, 0.0f, 0.36f), expense = true),
-            Category( name = "Vacation", color = Color(0.1f, 0.8f, 0.7f, 0.4f), expense = true)
+    var categories: StateFlow<List<Category>> = categoryRepository.getAllCategory()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
         )
     var selectedCategoryName by mutableStateOf("")
-    var selectedCategory by mutableStateOf(Category( name = "House", color = Color(0f, 0.016f, 0.98f, 0.5f), expense = true))
+    var selectedCategory by mutableStateOf(Category( name = "House", color = Color(0f, 0.016f, 0.98f, 0.5f).toArgb(), expense = true))
 
     fun onEvent(event: AddTransactionEvent) {
         when (event) {
@@ -140,7 +139,7 @@ open class AddOrEditTransactionViewModel(
         }
         selectedCategoryName = if (selectedCategoryName.isBlank()) "Others" else selectedCategoryName
         var catExist = false
-        for (category in categories) {
+        for (category in categories.value) {
             if (category.name == selectedCategoryName) {
                 selectedCategory = category
                 catExist = true
@@ -151,10 +150,11 @@ open class AddOrEditTransactionViewModel(
             val randomfloat = Random.nextFloat()
             val randomfloat2 = Random.nextFloat()
             val randomfloat3 = Random.nextFloat()
-            selectedCategory = Category( name = selectedCategoryName, color = Color(randomfloat, randomfloat2, randomfloat3, 0.5f), expense = value < 0)
+            selectedCategory = Category( name = selectedCategoryName, color = Color(randomfloat, randomfloat2, randomfloat3, 0.5f).toArgb(), expense = value < 0)
             viewModelScope.launch(Dispatchers.IO) {
                 categoryRepository.addACategory(selectedCategory)
             }
+            selectedCategory = selectedCategory.copy(id = categories.value.size.toLong() + 1)
         }
         return Transaction(
             name = transactionName,

@@ -13,6 +13,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.core.graphics.alpha
+import androidx.core.graphics.blue
+import androidx.core.graphics.green
+import androidx.core.graphics.red
 import androidx.lifecycle.viewmodel.compose.viewModel
 import de.christcoding.budgetfellow.data.models.Transaction
 import de.christcoding.budgetfellow.data.models.TransactionDetails
@@ -38,9 +42,9 @@ fun TransactionItem(transaction: TransactionDetails) {
         Surface(
             modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
             shape = Shapes.medium,
-            color = Color(alpha = 0.25f, red = transaction.category.color.red, green = transaction.category.color.green, blue = transaction.category.color.blue)
+            color = Color(transaction.category.color).copy(alpha = 0.25f)
             ) {
-            Text(transaction.category.name, style = MaterialTheme.typography.bodySmall, color = transaction.category.color)
+            Text(transaction.category.name, style = MaterialTheme.typography.bodySmall, color = Color( transaction.category.color))
         }
     }
 }

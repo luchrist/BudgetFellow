@@ -9,7 +9,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import de.christcoding.budgetfellow.utils.StartScreenState
-import de.christcoding.budgetfellow.viewmodels.MainViewModel
 import de.christcoding.budgetfellow.views.AddFirstIncomeScreen
 import de.christcoding.budgetfellow.views.BudgetsIntroScreen
 import de.christcoding.budgetfellow.views.BudgetsScreen

@@ -6,13 +6,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHostController
 import de.christcoding.budgetfellow.R
 import de.christcoding.budgetfellow.navigation.Screen
 import de.christcoding.budgetfellow.utils.StartScreenState
 import de.christcoding.budgetfellow.viewmodels.AppViewModelProvider
 import de.christcoding.budgetfellow.viewmodels.IntroViewModel
-import de.christcoding.budgetfellow.viewmodels.MainViewModel
 
 @Composable
 fun SetupCompleteScreen(navigateToHome: () -> Unit) {

@@ -1,5 +1,6 @@
 package de.christcoding.budgetfellow.data
 
+import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -8,6 +9,7 @@ import androidx.room.Update
 import de.christcoding.budgetfellow.data.models.Category
 import kotlinx.coroutines.flow.Flow
 
+@Dao
 abstract class CategoryDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     abstract suspend fun addACategory(categoryEntity: Category): Long //returns the id of the added row

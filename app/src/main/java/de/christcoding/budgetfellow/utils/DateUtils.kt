@@ -28,8 +28,8 @@ class DateUtils {
             return LocalDate.parse(date)
         }
         fun convertMillisToDate(millis: Long): String {
-            val formatter = DateFormat.getDateInstance()
-            return formatter.format(Date(millis))
+            val formatter = DateTimeFormatter.ISO_LOCAL_DATE
+            return Date(millis).toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate().format(formatter)
         }
 
         fun getPluralUnit(context: Context, unit: String, amount: String): String {

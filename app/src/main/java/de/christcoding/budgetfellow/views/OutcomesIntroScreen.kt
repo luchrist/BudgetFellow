@@ -19,7 +19,6 @@ import de.christcoding.budgetfellow.navigation.Screen
 import de.christcoding.budgetfellow.utils.StartScreenState
 import de.christcoding.budgetfellow.viewmodels.AppViewModelProvider
 import de.christcoding.budgetfellow.viewmodels.IntroViewModel
-import de.christcoding.budgetfellow.viewmodels.MainViewModel
 
 @Composable
 fun OutcomesIntroScreen(navController: NavHostController) {

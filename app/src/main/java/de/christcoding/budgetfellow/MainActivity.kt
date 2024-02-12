@@ -7,7 +7,6 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -18,7 +17,6 @@ import de.christcoding.budgetfellow.navigation.Screen
 import de.christcoding.budgetfellow.ui.theme.BudgetFellowTheme
 import de.christcoding.budgetfellow.utils.Constants
 import de.christcoding.budgetfellow.utils.StartScreenState
-import de.christcoding.budgetfellow.views.AddFirstIncomeScreen
 import de.christcoding.budgetfellow.views.HomeScreen
 
 class MainActivity : ComponentActivity() {

@@ -18,13 +18,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.christcoding.budgetfellow.R
 import de.christcoding.budgetfellow.data.models.Budget
+import de.christcoding.budgetfellow.data.models.BudgetDetails
 import de.christcoding.budgetfellow.utils.StringUtils
 
 @Composable
-fun BudgetCard(budget: Budget) {
+fun BudgetCard(budget: BudgetDetails) {
     Card(modifier = Modifier.height(100.dp).clip(RoundedCornerShape(8.dp)).padding(8.dp),
         elevation = CardDefaults.cardElevation(4.dp)) {
-        Text(text = StringUtils.getStringOfLength(budget.category, 8),
+        Text(text = StringUtils.getStringOfLength(budget.category.name, 8),
             Modifier
                 .fillMaxWidth()
                 .padding(4.dp), fontSize = 16.sp, maxLines = 1, )

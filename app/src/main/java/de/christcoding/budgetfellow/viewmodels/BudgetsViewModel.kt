@@ -9,8 +9,19 @@ import de.christcoding.budgetfellow.data.BudgetRepository
 import de.christcoding.budgetfellow.data.CategoryRepository
 import de.christcoding.budgetfellow.data.TransactionRepository
 import de.christcoding.budgetfellow.data.models.Budget
+import de.christcoding.budgetfellow.data.models.BudgetDetails
 import de.christcoding.budgetfellow.data.models.Category
 import de.christcoding.budgetfellow.data.models.Transaction
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.chrono.ChronoLocalDate
@@ -21,50 +32,99 @@ class BudgetsViewModel(
     private val categoryRepository: CategoryRepository,
 ): ViewModel() {
 
-    var savingsPerMonth by mutableStateOf(0.0)
+    val budgetsFlow: StateFlow<List<Budget>> = budgetRepository.getAllBudgets()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = listOf()
+        )
 
-    var budgets: List<Budget> = mutableListOf()
+    val categoriesFlow: StateFlow<List<Category>> = categoryRepository.getAllCategory()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = listOf()
+        )
+
+    val transactionsFlow: StateFlow<List<Transaction>> = transactionRepository.getAllTransactions()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = listOf()
+        )
+
+    var budgets by mutableStateOf(listOf<Budget>())
+    var categories by mutableStateOf(listOf<Category>())
+    var transactions by mutableStateOf(listOf<Transaction>())
 
     init {
         viewModelScope.launch {
-            budgets = getBudgets()
+            budgetsFlow.collectLatest { budgets = it }
+            categoriesFlow.collectLatest{ categories = it }
+        }
+        viewModelScope.launch {
+            transactionsFlow.collectLatest { transactions = it }
         }
     }
 
-    suspend fun getBudgets(): List<Budget> {
-        val categoryBudgets: MutableList<Budget> = mutableListOf()
-        var allBudgets: List<Budget> = listOf()
-        var categories: List<Category> = listOf()
-        budgetRepository.getAllBudgets().collect{
-            allBudgets = it
-        }
-        categoryRepository.getAllCategory().collect {
-            categories = it
-        }
+    var budgetState: StateFlow<BudgetUiState> = flow<BudgetUiState> {
+        emitBudgetState()
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = BudgetUiState()
+    )
+
+    private fun emitBudgetState() {
+
+    }
+
+    private fun getBudgetsState(): BudgetUiState {
+        return mapToBudgetUiState(budgets)
+    }
+
+    private suspend fun mapToBudgetUiState(budgets: List<Budget>): BudgetUiState {
+        val budgetDetails = getBudgets(budgets)
+        return BudgetUiState(budgets = budgetDetails)
+    }
+
+    companion object {
+        private const val TIMEOUT_MILLIS = 5_000L
+    }
+
+    suspend fun getBudgets(allBudgets: List<Budget>): List<BudgetDetails> {
+        val categoryBudgets: MutableList<BudgetDetails> = mutableListOf()
+        val categories: List<Category> = categoryRepository.getAllCategory().firstOrNull() ?: listOf()
         for (category in categories) {
             categoryBudgets.add(getBudgetForCategory(category, allBudgets))
         }
         return categoryBudgets
     }
 
-    private suspend fun getBudgetForCategory(category: Category, budgets: List<Budget>): Budget {
+    private suspend fun getBudgetForCategory(category: Category, budgets: List<Budget>): BudgetDetails {
         for (budget in budgets) {
             if (budget.categoryId == category.id) {
-                return budget
+                return BudgetDetails(
+                    id = budget.id,
+                    category = category,
+                    amount = budget.amount,
+                    spent = budget.spent)
             }
         }
         return createBudgetForCategory(category)
     }
 
-    private suspend fun createBudgetForCategory(category: Category): Budget {
+    private suspend fun createBudgetForCategory(category: Category): BudgetDetails {
         val transactionsOfCurrentMonth: List<Transaction> = getTransactionsOfCurrentMonth()
-        var newBudget = 0.0
+        var newBudgetAmount = 0.0
         for (transaction in transactionsOfCurrentMonth) {
             if (transaction.categoryId == category.id) {
-                newBudget += transaction.amount
+                newBudgetAmount += transaction.amount
             }
         }
-        return Budget(categoryId = category.id, amount = newBudget, spent = newBudget)
+        val newBudget = BudgetDetails(category = category, amount = newBudgetAmount, spent = newBudgetAmount)
+        budgetRepository.addABudget(Budget(categoryId = category.id, amount = newBudgetAmount, spent = newBudgetAmount))
+        return newBudget
     }
 
     private suspend fun getTransactionsOfCurrentMonth(): List<Transaction> {
@@ -106,3 +166,5 @@ class BudgetsViewModel(
         return localDate.withDayOfMonth(localDate.lengthOfMonth())
     }
 }
+
+data class BudgetUiState(val budgets: List<BudgetDetails> = listOf(), val savingsPerMonth: Double = 0.0)

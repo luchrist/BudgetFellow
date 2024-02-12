@@ -9,7 +9,7 @@ data class Category(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0L,
     val name: String = "",
-    val color: Color = Color.Unspecified,
+    val color: Int,
     val expense: Boolean = true
 ): Comparable<Category> {
     override fun compareTo(other: Category): Int {

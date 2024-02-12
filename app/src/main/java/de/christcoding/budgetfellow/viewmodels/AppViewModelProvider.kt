@@ -23,13 +23,6 @@ object AppViewModelProvider {
             )
         }
         initializer {
-            MainViewModel(
-                transactionRepository = budgetFellowApp().container.transactionRepository,
-                budgetRepository = budgetFellowApp().container.budgetRepository,
-                categoryRepository = budgetFellowApp().container.categoryRepository,
-            )
-        }
-        initializer {
             ApplicationViewModel()
         }
 

@@ -8,7 +8,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -24,21 +23,21 @@ import de.christcoding.budgetfellow.ui.components.Title
 import de.christcoding.budgetfellow.viewmodels.AppViewModelProvider
 import de.christcoding.budgetfellow.viewmodels.ApplicationViewModel
 import de.christcoding.budgetfellow.viewmodels.BudgetsViewModel
-import de.christcoding.budgetfellow.viewmodels.MainViewModel
 
 @Composable
 fun BudgetsScreen() {
     val appViewModel: ApplicationViewModel = viewModel(factory = AppViewModelProvider.Factory)
     val vm: BudgetsViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    val budgetUiState by vm.budgetState.collectAsState()
     Column {
         Title(title = "SET YOUR BUDGETS")
         SubTitle(subTitle = "Edit existing budgets or create new ones. You can always change this later again")
-        Text(text = "You will save ${vm.savingsPerMonth} ${appViewModel.currency} per month")
+        Text(text = "You will save ${budgetUiState.savingsPerMonth} ${appViewModel.currency} per month")
         //val budgets by vm.budgets.collectAsState(initial = listOf())
         LazyVerticalGrid(columns = GridCells.Fixed(2)) {
-            //items(budgets) { budget ->
-                //BudgetCard(budget = budget)
-            //}
+            items(budgetUiState.budgets) { budget ->
+                BudgetCard(budget = budget)
+            }
         }
         Button(onClick = { /*TODO*/ }, Modifier.align(alignment = Alignment.CenterHorizontally)) {
             Icon(Icons.Default.Add, contentDescription = null)

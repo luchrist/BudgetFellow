@@ -23,6 +23,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,6 +44,8 @@ import de.christcoding.budgetfellow.viewmodels.AddOrEditTransactionViewModel
 
 @Composable
 fun AutoCompleteTextView(vm: AddOrEditTransactionViewModel) {
+
+    val categories by vm.categories.collectAsState()
 
     val heightTextFields by remember {
         mutableStateOf(55.dp)
@@ -96,7 +99,7 @@ fun AutoCompleteTextView(vm: AddOrEditTransactionViewModel) {
                     label = { Text(text = "Category") },
                     isError = state.catError != null,
                     textStyle = TextStyle(
-                        color = Color.Black,
+                        color = Color.White,
                         fontSize = 16.sp
                     ),
                     keyboardOptions = KeyboardOptions(
@@ -110,7 +113,7 @@ fun AutoCompleteTextView(vm: AddOrEditTransactionViewModel) {
                                 modifier = Modifier.size(24.dp),
                                 imageVector = Icons.Rounded.KeyboardArrowDown,
                                 contentDescription = "arrow",
-                                tint = Color.Unspecified
+                                tint = Color.White
                             )
                         }
                     }
@@ -132,7 +135,7 @@ fun AutoCompleteTextView(vm: AddOrEditTransactionViewModel) {
 
                         if (vm.selectedCategoryName.isNotEmpty()) {
                             items(
-                                vm.categories.filter {
+                                categories.filter {
                                     it.name.lowercase()
                                         .contains(vm.selectedCategoryName.lowercase())
                                 }
@@ -146,7 +149,7 @@ fun AutoCompleteTextView(vm: AddOrEditTransactionViewModel) {
                             }
                         } else {
                             items(
-                                vm.categories.sorted()
+                                categories.sorted()
                             ) {
                                 Category(title = it.name) { title ->
                                     vm.selectedCategoryName = title
