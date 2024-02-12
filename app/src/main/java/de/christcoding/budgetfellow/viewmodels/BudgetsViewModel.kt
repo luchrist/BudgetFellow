@@ -12,16 +12,12 @@ import de.christcoding.budgetfellow.data.models.Budget
 import de.christcoding.budgetfellow.data.models.BudgetDetails
 import de.christcoding.budgetfellow.data.models.Category
 import de.christcoding.budgetfellow.data.models.Transaction
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.chrono.ChronoLocalDate
@@ -60,48 +56,79 @@ class BudgetsViewModel(
     init {
         viewModelScope.launch {
             budgetsFlow.collectLatest { budgets = it }
-            categoriesFlow.collectLatest{ categories = it }
+        }
+        viewModelScope.launch {
+            categoriesFlow.collectLatest { categories = it }
         }
         viewModelScope.launch {
             transactionsFlow.collectLatest { transactions = it }
         }
     }
 
-    var budgetState: StateFlow<BudgetUiState> = flow<BudgetUiState> {
-        emitBudgetState()
+    var budgetState: StateFlow<BudgetUiState> = flow {
+        while (true) {
+            emit(getBudgetState())
+            delay(1_000)
+        }
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = BudgetUiState()
     )
 
-    private fun emitBudgetState() {
-
+    private fun getBudgetState(): BudgetUiState {
+        if(budgets.isEmpty() || categories.isEmpty() || transactions.isEmpty()) {
+            return BudgetUiState()
+        }
+        val budgetDetails: List<BudgetDetails> = getBudgets(budgets)
+        val savingsPerMonth = calcSavingPerMonth(budgetDetails)
+        return BudgetUiState(budgets = budgetDetails, savingsPerMonth = savingsPerMonth)
     }
 
-    private fun getBudgetsState(): BudgetUiState {
-        return mapToBudgetUiState(budgets)
+    private fun calcSavingPerMonth(budgetDetails: List<BudgetDetails>): Double {
+        val incomeCategories = categories.filter { !it.expense }.toList()
+        val totalBudget = budgetDetails.sumOf { it.amount }
+        var totalIncome = 0.0
+        for (category in incomeCategories) {
+            for (transaction in transactions) {
+                if (transaction.categoryId == category.id && transaction.date.monthValue == LocalDate.now().monthValue) {
+                    totalIncome += if(transaction.recurring) {
+                        getTransactionValuePerMonth(transaction)
+                    } else {
+                        transaction.amount
+                    }
+                }
+            }
+        }
+        return totalIncome - totalBudget
+    }
+    private fun getTransactionValuePerMonth(transaction: Transaction): Double {
+        val localDate = LocalDate.now()
+        var recurringDate = transaction.date
+        var transactionValue = 0.0
+        while (recurringDate.isBefore(getLastDayOfCurrentMonth(localDate))) {
+            if (recurringDate.monthValue == localDate.monthValue) {
+                transactionValue += transaction.amount
+            }
+            when (transaction.recurringIntervalUnit) {
+                "Day" -> recurringDate = recurringDate.plusDays(transaction.recurringInterval.toLong())
+                "Week" -> recurringDate = recurringDate.plusWeeks(transaction.recurringInterval.toLong())
+                "Month" -> recurringDate = recurringDate.plusMonths(transaction.recurringInterval.toLong())
+                "Year" -> recurringDate = recurringDate.plusYears(transaction.recurringInterval.toLong())
+            }
+        }
+        return transactionValue
     }
 
-    private suspend fun mapToBudgetUiState(budgets: List<Budget>): BudgetUiState {
-        val budgetDetails = getBudgets(budgets)
-        return BudgetUiState(budgets = budgetDetails)
-    }
-
-    companion object {
-        private const val TIMEOUT_MILLIS = 5_000L
-    }
-
-    suspend fun getBudgets(allBudgets: List<Budget>): List<BudgetDetails> {
+    fun getBudgets(allBudgets: List<Budget>): List<BudgetDetails> {
         val categoryBudgets: MutableList<BudgetDetails> = mutableListOf()
-        val categories: List<Category> = categoryRepository.getAllCategory().firstOrNull() ?: listOf()
         for (category in categories) {
             categoryBudgets.add(getBudgetForCategory(category, allBudgets))
         }
         return categoryBudgets
     }
 
-    private suspend fun getBudgetForCategory(category: Category, budgets: List<Budget>): BudgetDetails {
+    private fun getBudgetForCategory(category: Category, budgets: List<Budget>): BudgetDetails {
         for (budget in budgets) {
             if (budget.categoryId == category.id) {
                 return BudgetDetails(
@@ -114,7 +141,7 @@ class BudgetsViewModel(
         return createBudgetForCategory(category)
     }
 
-    private suspend fun createBudgetForCategory(category: Category): BudgetDetails {
+    private fun createBudgetForCategory(category: Category): BudgetDetails {
         val transactionsOfCurrentMonth: List<Transaction> = getTransactionsOfCurrentMonth()
         var newBudgetAmount = 0.0
         for (transaction in transactionsOfCurrentMonth) {
@@ -123,39 +150,35 @@ class BudgetsViewModel(
             }
         }
         val newBudget = BudgetDetails(category = category, amount = newBudgetAmount, spent = newBudgetAmount)
-        budgetRepository.addABudget(Budget(categoryId = category.id, amount = newBudgetAmount, spent = newBudgetAmount))
+        viewModelScope.launch {
+            budgetRepository.addABudget(Budget(categoryId = category.id, amount = newBudgetAmount, spent = newBudgetAmount))
+        }
         return newBudget
     }
 
-    private suspend fun getTransactionsOfCurrentMonth(): List<Transaction> {
-        var transactions: MutableList<Transaction> = mutableListOf()
-        transactionRepository.getAllTransactions().collect {
-            transactions = it.toMutableList()
-        }
+    private fun getTransactionsOfCurrentMonth(): List<Transaction> {
         val localDate = LocalDate.now()
         val transactionsOfCurrentMonth: MutableList<Transaction> = mutableListOf()
         for (transaction in transactions) {
             if (transaction.recurring) {
-                val recurringDate = transaction.date
+                var recurringDate = transaction.date
                 if (recurringDate.monthValue == localDate.monthValue) {
                     transactionsOfCurrentMonth.add(transaction)
-                    transactions.remove(transaction)
                 }
                 while (recurringDate.isBefore(getLastDayOfCurrentMonth(localDate))) {
                     when (transaction.recurringIntervalUnit) {
-                        "Day" -> recurringDate.plusDays(transaction.recurringInterval.toLong())
-                        "Week" -> recurringDate.plusWeeks(transaction.recurringInterval.toLong())
-                        "Month" -> recurringDate.plusMonths(transaction.recurringInterval.toLong())
-                        "Year" -> recurringDate.plusYears(transaction.recurringInterval.toLong())
+                        "Day" -> recurringDate = recurringDate.plusDays(transaction.recurringInterval.toLong())
+                        "Week" -> recurringDate = recurringDate.plusWeeks(transaction.recurringInterval.toLong())
+                        "Month" -> {
+                            recurringDate = recurringDate.plusMonths(transaction.recurringInterval.toLong())
+                        }
+                        "Year" -> recurringDate = recurringDate.plusYears(transaction.recurringInterval.toLong())
                     }
                     if (recurringDate.monthValue == localDate.monthValue) {
                         transactionsOfCurrentMonth.add(transaction)
                     }
                 }
-            }
-        }
-        for (transaction in transactions) {
-            if (transaction.date.monthValue == localDate.monthValue) {
+            } else if (transaction.date.monthValue == localDate.monthValue) {
                 transactionsOfCurrentMonth.add(transaction)
             }
         }
