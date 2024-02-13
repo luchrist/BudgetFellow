@@ -19,7 +19,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import de.christcoding.budgetfellow.R
+import de.christcoding.budgetfellow.navigation.Screen
 import de.christcoding.budgetfellow.ui.components.BudgetCard
 import de.christcoding.budgetfellow.ui.components.SubTitle
 import de.christcoding.budgetfellow.ui.components.Title
@@ -29,7 +31,7 @@ import de.christcoding.budgetfellow.viewmodels.BudgetUiState
 import de.christcoding.budgetfellow.viewmodels.BudgetsViewModel
 
 @Composable
-fun BudgetsScreen() {
+fun BudgetsScreen(navController: NavHostController) {
     val appViewModel: ApplicationViewModel = viewModel(factory = AppViewModelProvider.Factory)
     val vm: BudgetsViewModel = viewModel(factory = AppViewModelProvider.Factory)
     val budgetUiState = vm.budgetState
@@ -51,7 +53,7 @@ fun BudgetsScreen() {
                         BudgetCard(budget = budget)
                     }
                 }
-                Button(onClick = { /*TODO*/ }, Modifier.align(alignment = Alignment.CenterHorizontally)) {
+                Button(onClick = { navController.navigate(Screen.CreateBudget.route)}, Modifier.align(alignment = Alignment.CenterHorizontally)) {
                     Icon(Icons.Default.Add, contentDescription = null)
                     Text(text = stringResource(id = R.string.create_budget))
                 }

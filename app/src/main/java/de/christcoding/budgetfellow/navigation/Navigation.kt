@@ -12,6 +12,8 @@ import de.christcoding.budgetfellow.utils.StartScreenState
 import de.christcoding.budgetfellow.views.AddFirstIncomeScreen
 import de.christcoding.budgetfellow.views.BudgetsIntroScreen
 import de.christcoding.budgetfellow.views.BudgetsScreen
+import de.christcoding.budgetfellow.views.CreateBudgetScreen
+import de.christcoding.budgetfellow.views.EditBudgetScreen
 import de.christcoding.budgetfellow.views.OutcomesIntroScreen
 import de.christcoding.budgetfellow.views.SetupCompleteScreen
 import de.christcoding.budgetfellow.views.TransactionsScreen
@@ -33,6 +35,12 @@ fun Navigation(context: Context,
         composable(Screen.SetBudgets.route) {
             BudgetsIntroScreen(navController)
         }
+        composable(Screen.CreateBudget.route) {
+            CreateBudgetScreen(navController = navController)
+        }
+        composable(Screen.EditBudget.route) {
+            EditBudgetScreen(navController = navController)
+        }
         composable(Screen.SetupComplete.route) {
             SetupCompleteScreen(navigateToHome = { navController.navigate(Screen.Transactions.route) })
         }
@@ -40,7 +48,7 @@ fun Navigation(context: Context,
             TransactionsScreen()
         }
         composable(Screen.BottomNavigationScreens.Budgets.bRoute) {
-            BudgetsScreen()
+            BudgetsScreen(navController)
         }
     }
 }

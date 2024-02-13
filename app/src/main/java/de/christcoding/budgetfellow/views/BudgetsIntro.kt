@@ -9,7 +9,7 @@ import de.christcoding.budgetfellow.utils.StartScreenState
 @Composable
 fun BudgetsIntroScreen(navController: NavHostController) {
     val ctx = LocalContext.current
-    BudgetsScreen()
+    BudgetsScreen(navController)
     NextSkipButton(onClickActions = {
         navController.navigate(Screen.SetupComplete.route)
         StartScreenState(ctx).updateStartingScreen(Screen.SetupComplete.route)

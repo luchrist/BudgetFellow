@@ -35,7 +35,13 @@ class BudgetsViewModel(
             initialValue = listOf()
         )
 
-    val categoriesFlow: StateFlow<List<Category>> = categoryRepository.getAllCategory()
+    val categoriesFlow: StateFlow<List<Category>> = categoryRepository.getExpenseCategories()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = listOf()
+        )
+    val incCategoriesFlow: StateFlow<List<Category>> = categoryRepository.getIncomeCategories()
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
@@ -51,6 +57,7 @@ class BudgetsViewModel(
 
     var budgets by mutableStateOf(listOf<Budget>())
     var categories by mutableStateOf(listOf<Category>())
+    var incCategories by mutableStateOf(listOf<Category>())
     var transactions by mutableStateOf(listOf<Transaction>())
 
     init {
@@ -59,6 +66,9 @@ class BudgetsViewModel(
         }
         viewModelScope.launch {
             categoriesFlow.collectLatest { categories = it }
+        }
+        viewModelScope.launch {
+            incCategoriesFlow.collectLatest { incCategories = it }
         }
         viewModelScope.launch {
             transactionsFlow.collectLatest { transactions = it }
@@ -80,7 +90,7 @@ class BudgetsViewModel(
     )*/
 
     fun updateBudgetState() {
-        if(categories.isEmpty() || transactions.isEmpty()) {
+        if(categories.isEmpty() || transactions.isEmpty() || incCategories.isEmpty() ) {
             budgetState = BudgetUiState.Loading
         }
         val budgetDetails: List<BudgetDetails> = getBudgets(budgets)
@@ -89,10 +99,9 @@ class BudgetsViewModel(
     }
 
     private fun calcSavingPerMonth(budgetDetails: List<BudgetDetails>): Double {
-        val incomeCategories = categories.filter { !it.expense }.toList()
         val totalBudget = budgetDetails.sumOf { it.amount }
         var totalIncome = 0.0
-        for (category in incomeCategories) {
+        for (category in incCategories) {
             for (transaction in transactions) {
                 if (transaction.categoryId == category.id && transaction.date.monthValue == LocalDate.now().monthValue) {
                     totalIncome += if(transaction.recurring) {
@@ -103,7 +112,7 @@ class BudgetsViewModel(
                 }
             }
         }
-        return totalIncome - totalBudget
+        return totalIncome + totalBudget
     }
     private fun getTransactionValuePerMonth(transaction: Transaction): Double {
         val localDate = LocalDate.now()
@@ -126,12 +135,15 @@ class BudgetsViewModel(
     fun getBudgets(allBudgets: List<Budget>): List<BudgetDetails> {
         val categoryBudgets: MutableList<BudgetDetails> = mutableListOf()
         for (category in categories) {
-            categoryBudgets.add(getBudgetForCategory(category, allBudgets))
+            val budgetForCategory = getBudgetForCategory(category, allBudgets)
+            if(budgetForCategory != null) {
+                categoryBudgets.add(budgetForCategory)
+            }
         }
         return categoryBudgets
     }
 
-    private fun getBudgetForCategory(category: Category, budgets: List<Budget>): BudgetDetails {
+    private fun getBudgetForCategory(category: Category, budgets: List<Budget>): BudgetDetails? {
         for (budget in budgets) {
             if (budget.categoryId == category.id) {
                 return BudgetDetails(
@@ -144,13 +156,16 @@ class BudgetsViewModel(
         return createBudgetForCategory(category)
     }
 
-    private fun createBudgetForCategory(category: Category): BudgetDetails {
+    private fun createBudgetForCategory(category: Category): BudgetDetails? {
         val transactionsOfCurrentMonth: List<Transaction> = getTransactionsOfCurrentMonth()
         var newBudgetAmount = 0.0
         for (transaction in transactionsOfCurrentMonth) {
             if (transaction.categoryId == category.id) {
                 newBudgetAmount += transaction.amount
             }
+        }
+        if(newBudgetAmount == 0.0) {
+            return null
         }
         val newBudget = BudgetDetails(category = category, amount = newBudgetAmount, spent = newBudgetAmount)
         viewModelScope.launch {
