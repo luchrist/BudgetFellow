@@ -1,8 +1,11 @@
 package de.christcoding.budgetfellow.views
 
 import android.annotation.SuppressLint
+import android.widget.Toast
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
@@ -14,34 +17,57 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import de.christcoding.budgetfellow.data.models.BudgetDetails
+import de.christcoding.budgetfellow.navigation.Screen
+import de.christcoding.budgetfellow.viewmodels.AppViewModelProvider
+import de.christcoding.budgetfellow.viewmodels.BudgetsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun EditBudgetScreen(navController: NavHostController, budget: BudgetDetails) {
-    var bud: BudgetDetails = budget
+fun EditBudgetScreen(navController: NavHostController, padding: PaddingValues, budgetId: String) {
+    val vm: BudgetsViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    val ctx = LocalContext.current
+    vm.updateEditBudgetState(budgetId)
     Scaffold (
+        Modifier.padding(padding),
         topBar = {
-            CenterAlignedTopAppBar(title = { Text(text = "Create a Budget") },
+            CenterAlignedTopAppBar(title = { Text(text = "Edit Budget") },
                 navigationIcon = { IconButton(onClick = { navController.popBackStack() }) {
                     Icon(imageVector = Icons.Filled.Close, contentDescription = "Back")
                 }
                 } )
         }
     ){
-        Column {
-            OutlinedTextField(value = budget.category.name, onValueChange = {}, readOnly = true)
-            OutlinedTextField(value = bud.amount.toString(), onValueChange = {bud = bud.copy(amount = it.toDouble())})
+        Column (Modifier.padding(it)){
+            OutlinedTextField(value = vm.editBudgetState.category, onValueChange = {}, readOnly = true)
+            OutlinedTextField(value = vm.editBudgetState.amount, onValueChange = {vm.editBudgetState = vm.editBudgetState.copy(amount = it)})
             Row {
-                Button(onClick = { /*TODO*/ }) {
+                Button(onClick = {
+                    vm.deleteBudget(budgetId)
+                }) {
                     Text(text = "Delete Budget")
                 }
-                Button(onClick = { /*TODO*/ }) {
+                Button(onClick = {
+                    vm.updateBudget(budgetId)
+                }) {
                     Text(text = "Save")
                 }
             }
+        }
+        if (vm.rows > 0) {
+            Toast.makeText(ctx, "Budget updated", Toast.LENGTH_SHORT).show()
+            navController.navigate(Screen.SetBudgets.route)
+        }
+        if (vm.deletedRows > 0) {
+            navController.navigate(Screen.SetBudgets.route)
         }
     }
 }

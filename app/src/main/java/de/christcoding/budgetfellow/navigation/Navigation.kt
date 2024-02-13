@@ -5,15 +5,18 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import de.christcoding.budgetfellow.utils.StartScreenState
 import de.christcoding.budgetfellow.views.AddFirstIncomeScreen
 import de.christcoding.budgetfellow.views.BudgetsIntroScreen
 import de.christcoding.budgetfellow.views.BudgetsScreen
 import de.christcoding.budgetfellow.views.CreateBudgetScreen
 import de.christcoding.budgetfellow.views.EditBudgetScreen
+import de.christcoding.budgetfellow.views.HomeScreen
 import de.christcoding.budgetfellow.views.OutcomesIntroScreen
 import de.christcoding.budgetfellow.views.SetupCompleteScreen
 import de.christcoding.budgetfellow.views.TransactionsScreen
@@ -36,19 +39,22 @@ fun Navigation(context: Context,
             BudgetsIntroScreen(navController)
         }
         composable(Screen.CreateBudget.route) {
-            CreateBudgetScreen(navController = navController)
+            CreateBudgetScreen(navController = navController, padding)
         }
-        composable(Screen.EditBudget.route) {
-            EditBudgetScreen(navController = navController)
+        composable("${Screen.EditBudget.route}/{budgetId}", arguments = listOf(navArgument("budgetId") { type = NavType.StringType })) {
+            EditBudgetScreen(navController = navController, padding, it.arguments?.getString("budgetId") ?: "0")
         }
         composable(Screen.SetupComplete.route) {
-            SetupCompleteScreen(navigateToHome = { navController.navigate(Screen.Transactions.route) })
+            SetupCompleteScreen(navigateToHome = { navController.navigate(Screen.Home.route) })
+        }
+        composable(Screen.Home.route) {
+            HomeScreen()
         }
         composable(Screen.BottomNavigationScreens.Transactions.bRoute) {
-            TransactionsScreen()
+            TransactionsScreen(padding)
         }
         composable(Screen.BottomNavigationScreens.Budgets.bRoute) {
-            BudgetsScreen(navController)
+            BudgetsScreen(navController, padding)
         }
     }
 }

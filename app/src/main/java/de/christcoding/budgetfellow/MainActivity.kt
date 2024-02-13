@@ -12,11 +12,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import de.christcoding.budgetfellow.navigation.Navigation
 import de.christcoding.budgetfellow.navigation.Screen
 import de.christcoding.budgetfellow.ui.theme.BudgetFellowTheme
 import de.christcoding.budgetfellow.utils.Constants
 import de.christcoding.budgetfellow.utils.StartScreenState
+import de.christcoding.budgetfellow.viewmodels.ApplicationViewModel
 import de.christcoding.budgetfellow.views.HomeScreen
 
 class MainActivity : ComponentActivity() {

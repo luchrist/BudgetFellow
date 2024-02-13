@@ -5,8 +5,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.rememberScaffoldState
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -27,6 +32,7 @@ import de.christcoding.budgetfellow.navigation.Navigation
 import de.christcoding.budgetfellow.navigation.Screen
 import de.christcoding.budgetfellow.ui.theme.TopAppBarBackground
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen() {
     val scaffoldState = rememberScaffoldState()
@@ -39,8 +45,19 @@ fun HomeScreen() {
         Screen.BottomNavigationScreens.Transactions,
         Screen.BottomNavigationScreens.Budgets
     )
+    val title = when(currentRoute) {
+        Screen.BottomNavigationScreens.Transactions.bRoute -> "Transactions"
+        Screen.BottomNavigationScreens.Budgets.bRoute -> "Budgets"
+        else -> ""
+    }
 
-    Scaffold (bottomBar = {
+    Scaffold (
+        topBar = {
+            if (title.isNotEmpty()){
+                CenterAlignedTopAppBar(title = { Text(text = title) })
+            }
+                 },
+        bottomBar = {
         NavigationBar(Modifier.wrapContentWidth(), containerColor = TopAppBarBackground ) {
               screensInBottom.forEach {
                   val isSelected = currentRoute == it.bRoute

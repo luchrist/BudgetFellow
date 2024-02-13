@@ -1,3 +1,4 @@
+import android.widget.AutoCompleteTextView
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -21,8 +23,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,12 +42,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.toSize
 import de.christcoding.budgetfellow.AddTransactionEvent
+import de.christcoding.budgetfellow.CategoryState
 import de.christcoding.budgetfellow.viewmodels.AddOrEditTransactionViewModel
 
 @Composable
-fun AutoCompleteTextView(vm: AddOrEditTransactionViewModel) {
-
-    val categories by vm.categories.collectAsState()
+fun AutoCompleteTextView(elements: List<String>, currentElement: String, onElementChanged: (String) -> Unit, title: String, error: String?) { //elements: State<List<String>>, currentElement: String, onElementChanged: (String) -> Unit, title: String, state: CategoryState
 
     val heightTextFields by remember {
         mutableStateOf(55.dp)
@@ -61,7 +62,6 @@ fun AutoCompleteTextView(vm: AddOrEditTransactionViewModel) {
     val interactionSource = remember {
         MutableInteractionSource()
     }
-    val state = vm.state
 
     // Category Field
     Column(
@@ -81,11 +81,10 @@ fun AutoCompleteTextView(vm: AddOrEditTransactionViewModel) {
 
             Row(modifier = Modifier.fillMaxWidth()) {
                 OutlinedTextField(
-                    value = vm.selectedCategoryName,
+                    value = currentElement,
                     onValueChange =
                     {
-                        vm.selectedCategoryName = it
-                        vm.onEvent(AddTransactionEvent.OnCategoryChanged(it))
+                        onElementChanged(it)
                         expanded = true
                     },
 
@@ -96,8 +95,8 @@ fun AutoCompleteTextView(vm: AddOrEditTransactionViewModel) {
                             textFieldSize = coordinates.size.toSize()
                         },
                     shape = RoundedCornerShape(16.dp),
-                    label = { Text(text = "Category") },
-                    isError = state.catError != null,
+                    label = { Text(text = title) },
+                    isError = error != null,
                     textStyle = TextStyle(
                         color = Color.White,
                         fontSize = 16.sp
@@ -133,27 +132,25 @@ fun AutoCompleteTextView(vm: AddOrEditTransactionViewModel) {
                         modifier = Modifier.heightIn(max = 150.dp),
                     ) {
 
-                        if (vm.selectedCategoryName.isNotEmpty()) {
+                        if (currentElement.isNotEmpty()) {
                             items(
-                                categories.filter {
-                                    it.name.lowercase()
-                                        .contains(vm.selectedCategoryName.lowercase())
+                                elements.filter {
+                                    it.lowercase()
+                                        .contains(currentElement.lowercase())
                                 }
                                     .sorted()
                             ) {
-                                Category(title = it.name) { title ->
-                                    vm.selectedCategoryName = title
-                                    vm.onEvent(AddTransactionEvent.OnCategoryChanged(title))
+                                Category(title = it) { title ->
+                                    onElementChanged(title)
                                     expanded = false
                                 }
                             }
                         } else {
                             items(
-                                categories.sorted()
+                                elements.sorted()
                             ) {
-                                Category(title = it.name) { title ->
-                                    vm.selectedCategoryName = title
-                                    vm.onEvent(AddTransactionEvent.OnCategoryChanged(title))
+                                Category(title = it) { title ->
+                                    onElementChanged(title)
                                     expanded = false
                                 }
                             }
@@ -164,8 +161,8 @@ fun AutoCompleteTextView(vm: AddOrEditTransactionViewModel) {
                 }
             }
 
-            if(state.catError != null) {
-                Text(text = state.catError, color = MaterialTheme.colorScheme.error, textAlign = TextAlign.Start, modifier = Modifier.fillMaxWidth())
+            if(error != null) {
+                Text(text = error, color = MaterialTheme.colorScheme.error, textAlign = TextAlign.Start, modifier = Modifier.fillMaxWidth())
             }
         }
 

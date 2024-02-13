@@ -31,6 +31,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -82,7 +83,11 @@ fun AddEditIncomeOrExpense(mode: TransactionMode) {
         shape = RoundedCornerShape(16.dp),
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
         label = { Text(text = stringResource(R.string.name)) })
-    AutoCompleteTextView(vm = specificViewModel)
+    AutoCompleteTextView(elements = specificViewModel.categoryNames.collectAsState().value,
+        currentElement = specificViewModel.selectedCategoryName,
+        onElementChanged = { specificViewModel.onEvent(AddTransactionEvent.OnCategoryChanged(it)) },
+        title = stringResource(R.string.category), error = specificViewModel.state.catError
+    )
     OutlinedTextField(
         value = specificViewModel.transactionDescription,
         shape = RoundedCornerShape(16.dp),

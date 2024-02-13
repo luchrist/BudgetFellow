@@ -1,10 +1,12 @@
 package de.christcoding.budgetfellow.viewmodels
 
+import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import de.christcoding.budgetfellow.BudgetState
 import de.christcoding.budgetfellow.data.BudgetRepository
 import de.christcoding.budgetfellow.data.CategoryRepository
 import de.christcoding.budgetfellow.data.TransactionRepository
@@ -12,11 +14,13 @@ import de.christcoding.budgetfellow.data.models.Budget
 import de.christcoding.budgetfellow.data.models.BudgetDetails
 import de.christcoding.budgetfellow.data.models.Category
 import de.christcoding.budgetfellow.data.models.Transaction
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -48,6 +52,13 @@ class BudgetsViewModel(
             initialValue = listOf()
         )
 
+    val expCategoriesFlow: StateFlow<List<Category>> = categoryRepository.getExpenseCategories()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = listOf()
+        )
+
     val transactionsFlow: StateFlow<List<Transaction>> = transactionRepository.getAllTransactions()
         .stateIn(
             scope = viewModelScope,
@@ -58,7 +69,14 @@ class BudgetsViewModel(
     var budgets by mutableStateOf(listOf<Budget>())
     var categories by mutableStateOf(listOf<Category>())
     var incCategories by mutableStateOf(listOf<Category>())
+    var expCategories by mutableStateOf(listOf<Category>())
     var transactions by mutableStateOf(listOf<Transaction>())
+
+    var createBudgetState: BudgetState by mutableStateOf(BudgetState())
+    var editBudgetState: BudgetState by mutableStateOf(BudgetState())
+    var id: Long by mutableStateOf(-2L)
+    var rows: Int by mutableStateOf(0)
+    var deletedRows: Int by mutableStateOf(0)
 
     init {
         viewModelScope.launch {
@@ -71,8 +89,25 @@ class BudgetsViewModel(
             incCategoriesFlow.collectLatest { incCategories = it }
         }
         viewModelScope.launch {
+            expCategoriesFlow.collectLatest { expCategories = it }
+        }
+        viewModelScope.launch {
             transactionsFlow.collectLatest { transactions = it }
         }
+    }
+
+    fun getCurrentBudgetState(budgetId: String): StateFlow<BudgetState> {
+        return budgetRepository.getABudgetById(budgetId.toLong()).map { budget ->
+            BudgetState(
+                budget.amount.toString(),
+                category = categories.find { it.id == budget.categoryId }?.name ?: "",
+                spent = budget.spent.toString()
+            ) }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = BudgetState("0.0", category = "", spent = "0.0")
+            )
     }
 
     var budgetState: BudgetUiState by mutableStateOf(BudgetUiState.Loading)
@@ -112,7 +147,7 @@ class BudgetsViewModel(
                 }
             }
         }
-        return totalIncome + totalBudget
+        return totalIncome - totalBudget
     }
     private fun getTransactionValuePerMonth(transaction: Transaction): Double {
         val localDate = LocalDate.now()
@@ -206,7 +241,74 @@ class BudgetsViewModel(
     private fun getLastDayOfCurrentMonth(localDate: LocalDate): ChronoLocalDate? {
         return localDate.withDayOfMonth(localDate.lengthOfMonth())
     }
+
+    fun checkIfEnough() {
+
+    }
+
+    fun saveBudget() {
+        var catId = categories.find { it.name == createBudgetState.category }?.id ?: 0L
+        if(catId == 0L) {
+            viewModelScope.launch(Dispatchers.IO) {
+                categoryRepository.addACategory(Category(
+                    name = createBudgetState.category,
+                    color = 0,
+                    expense = true
+                ))
+            }
+            catId = categories.get(categories.size - 1).id + 1
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            id = budgetRepository.addABudget(Budget(
+                categoryId = catId,
+                amount = createBudgetState.amount.toDouble(),
+                spent = createBudgetState.spent.toDouble()
+            ))
+            createBudgetState = BudgetState()
+        }
+    }
+
+    fun updateEditBudgetState(budgetId: String) {
+        val budget = budgets.findLast { it.id == budgetId.toLong() }
+        if (budget != null) {
+            editBudgetState = BudgetState(
+                amount = (budget.amount * -1).toString(),
+                category = categories.find { category -> category.id == budget.categoryId }?.name ?: "",
+                spent = budget.spent.toString()
+            )
+        }
+    }
+
+    fun updateBudget(budgetId: String) {
+        val catId = categories.find { it.name == editBudgetState.category }?.id ?: 0L
+        viewModelScope.launch(Dispatchers.IO) {
+            rows = budgetRepository.updateABudget(Budget(
+                id = budgetId.toLong(),
+                categoryId = catId,
+                amount = editBudgetState.amount.toDouble(),
+                spent = editBudgetState.spent.toDouble()
+            ))
+        }
+    }
+
+    fun deleteBudget(budgetId: String) {
+        val catId = categories.find { it.name == editBudgetState.category }?.id ?: 0L
+        viewModelScope.launch(Dispatchers.IO) {
+            deletedRows = budgetRepository.deleteABudget(Budget(
+                id = budgetId.toLong(),
+                categoryId = catId,
+                amount = editBudgetState.amount.toDouble(),
+                spent = editBudgetState.spent.toDouble()
+            ))
+        }
+    }
 }
+
+data class CreateBudgetUiState(
+    val categorie: Category? = null,
+    val amount: Double = 0.0,
+    val spent: Double = 0.0
+)
 
 sealed interface BudgetUiState {
     data class Success(val budgets: List<BudgetDetails>, val savingsPerMonth: Double) : BudgetUiState

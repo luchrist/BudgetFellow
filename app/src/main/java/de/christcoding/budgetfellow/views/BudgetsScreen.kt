@@ -2,7 +2,9 @@ package de.christcoding.budgetfellow.views
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -11,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -20,6 +23,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import de.christcoding.budgetfellow.BudgetState
 import de.christcoding.budgetfellow.R
 import de.christcoding.budgetfellow.navigation.Screen
 import de.christcoding.budgetfellow.ui.components.BudgetCard
@@ -31,7 +35,7 @@ import de.christcoding.budgetfellow.viewmodels.BudgetUiState
 import de.christcoding.budgetfellow.viewmodels.BudgetsViewModel
 
 @Composable
-fun BudgetsScreen(navController: NavHostController) {
+fun BudgetsScreen(navController: NavHostController, padding: PaddingValues) {
     val appViewModel: ApplicationViewModel = viewModel(factory = AppViewModelProvider.Factory)
     val vm: BudgetsViewModel = viewModel(factory = AppViewModelProvider.Factory)
     val budgetUiState = vm.budgetState
@@ -43,14 +47,18 @@ fun BudgetsScreen(navController: NavHostController) {
             LoadingScreen(modifier = Modifier.fillMaxSize())
         }
         is BudgetUiState.Success -> {
-            Column {
+            Column(modifier = Modifier.padding(padding)) {
                 Title(title = "SET YOUR BUDGETS")
-                SubTitle(subTitle = "Edit existing budgets or create new ones. You can always change this later again")
+                SubTitle(subTitle = "Edit existing budgets or create new ones")
                 Text(text = "You will save ${budgetUiState.savingsPerMonth} ${appViewModel.currency} per month")
                 //val budgets by vm.budgets.collectAsState(initial = listOf())
                 LazyVerticalGrid(columns = GridCells.Fixed(2)) {
                     items(budgetUiState.budgets) { budget ->
-                        BudgetCard(budget = budget)
+                        Surface(onClick = {
+                            navController.navigate("${Screen.EditBudget.route}/${budget.id}")
+                        }){
+                            BudgetCard(budget = budget)
+                        }
                     }
                 }
                 Button(onClick = { navController.navigate(Screen.CreateBudget.route)}, Modifier.align(alignment = Alignment.CenterHorizontally)) {

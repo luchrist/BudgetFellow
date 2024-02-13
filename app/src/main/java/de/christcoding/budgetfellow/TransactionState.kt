@@ -7,4 +7,4 @@ data class TransactionState(
     val periodError: String? = null,
     val category: String = "",
     val catError: String? = null
-    )
+    ): CategoryState
