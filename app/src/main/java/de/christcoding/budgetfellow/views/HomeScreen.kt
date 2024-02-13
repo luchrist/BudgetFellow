@@ -48,11 +48,16 @@ fun HomeScreen() {
     val title = when(currentRoute) {
         Screen.BottomNavigationScreens.Transactions.bRoute -> Screen.BottomNavigationScreens.Transactions.title
         Screen.BottomNavigationScreens.Budgets.bRoute -> Screen.BottomNavigationScreens.Budgets.title
-        Screen.BottomNavigationScreens.TransactionAdd.bRoute -> Screen.BottomNavigationScreens.TransactionAdd.title
+        "${Screen.BottomNavigationScreens.TransactionAdd.bRoute}/{mode}" -> Screen.BottomNavigationScreens.TransactionAdd.title
         Screen.BottomNavigationScreens.BudgetCreate.bRoute -> Screen.BottomNavigationScreens.BudgetCreate.title
         Screen.BottomNavigationScreens.BudgetDetail.bRoute -> Screen.BottomNavigationScreens.BudgetDetail.title
-        Screen.BottomNavigationScreens.TransactionDetail.bRoute -> Screen.BottomNavigationScreens.TransactionDetail.title
-        else -> ""
+        else -> {
+            if (currentRoute?.startsWith(Screen.BottomNavigationScreens.TransactionDetail.bRoute) == true) {
+                Screen.BottomNavigationScreens.TransactionDetail.title
+            } else {
+                ""
+            }
+        }
     }
 
     Scaffold (

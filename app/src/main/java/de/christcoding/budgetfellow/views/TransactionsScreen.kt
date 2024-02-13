@@ -10,8 +10,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import de.christcoding.budgetfellow.R
 import de.christcoding.budgetfellow.navigation.Screen
 import de.christcoding.budgetfellow.viewmodels.AppViewModelProvider
 import de.christcoding.budgetfellow.viewmodels.BudgetUiState
@@ -28,9 +30,9 @@ fun TransactionsScreen(navController: NavHostController, padding: PaddingValues)
     Scaffold (
         modifier = Modifier.padding(padding),
         floatingActionButton = {
-            FloatingActionButton(onClick = { navController.navigate(Screen.BottomNavigationScreens.TransactionAdd.route) }) {
-                Icon(Icons.Filled.Add, "Floating action button.")
-            }
+            MultiFloatingActionButton(fabIcon = painterResource(id = R.drawable.baseline_add_24),
+                items = arrayListOf(FabItem(icon =  painterResource(id = R.drawable.baseline_add_24), label = "Add Income") {navController.navigate("${Screen.BottomNavigationScreens.TransactionAdd.route}/i")},
+                    FabItem(icon = painterResource(id = R.drawable.minus), label = "Add Expense") {navController.navigate("${Screen.BottomNavigationScreens.TransactionAdd.route}/e")}))
         }
     ){
         when (transactionsState) {
@@ -39,7 +41,7 @@ fun TransactionsScreen(navController: NavHostController, padding: PaddingValues)
             }
 
             is TransactionsUiState.Success -> {
-                TransactionsList(transactions = transactionsState.transactions, it)
+                TransactionsList(transactions = transactionsState.transactions, navController, it)
             }
         }
     }

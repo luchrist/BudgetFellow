@@ -7,18 +7,19 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavHostController
 import de.christcoding.budgetfellow.data.models.Transaction
 import de.christcoding.budgetfellow.data.models.TransactionDetails
 import de.christcoding.budgetfellow.data.models.groupedByDay
 import java.time.LocalDate
 
 @Composable
-fun TransactionsList(transactions: List<TransactionDetails>, padding: PaddingValues) {
+fun TransactionsList(transactions: List<TransactionDetails>, navController: NavHostController, padding: PaddingValues) {
     val groupedTransactions = transactions.groupedByDay()
 
     LazyColumn(modifier = Modifier.padding(padding)){
         items(groupedTransactions.keys.toList(), key = { it.toString() }) { date ->
-            TransactionDayGroup(date = date, transactions = groupedTransactions[date]!!)
+            TransactionDayGroup(date = date, transactions = groupedTransactions[date]!!, navController = navController)
         }
     }
 }

@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import de.christcoding.budgetfellow.data.models.Transaction
 import de.christcoding.budgetfellow.data.models.TransactionDetails
 import de.christcoding.budgetfellow.ui.theme.DarkGrey
@@ -20,15 +21,15 @@ import de.christcoding.budgetfellow.utils.DateUtils
 import java.time.LocalDate
 
 @Composable
-fun TransactionDayGroup(date: LocalDate, transactions: List<TransactionDetails>) {
+fun TransactionDayGroup(date: LocalDate, transactions: List<TransactionDetails>, navController: NavHostController) {
     Card (modifier = Modifier.clip(RoundedCornerShape(8.dp)).padding(8.dp),
         elevation = CardDefaults.cardElevation(4.dp),)
     {
         Column {
             Text(text = DateUtils.formatDay(date), style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Divider()
             transactions.forEach { transaction ->
-                TransactionItem(transaction = transaction)
+                Divider()
+                TransactionItem(transaction = transaction, navController = navController)
             }
         }
     }

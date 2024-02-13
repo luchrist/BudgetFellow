@@ -67,8 +67,8 @@ fun Navigation(context: Context,
         composable(Screen.BottomNavigationScreens.BudgetCreate.bRoute) {
             CreateBudgetScreen(navController, padding)
         }
-        composable(Screen.BottomNavigationScreens.TransactionAdd.bRoute) {
-            AddTransactionScreen(navController, padding)
+        composable("${Screen.BottomNavigationScreens.TransactionAdd.bRoute}/{mode}", arguments = listOf(navArgument("mode") { type = NavType.StringType })) {
+            AddTransactionScreen(it.arguments?.getString("mode") ?: "e", navController, padding)
         }
     }
 }
