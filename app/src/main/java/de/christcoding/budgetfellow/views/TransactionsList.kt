@@ -19,7 +19,7 @@ fun TransactionsList(transactions: List<TransactionDetails>, navController: NavH
 
     LazyColumn(modifier = Modifier.padding(padding)){
         items(groupedTransactions.keys.toList(), key = { it.toString() }) { date ->
-            TransactionDayGroup(date = date, transactions = groupedTransactions[date]!!, navController = navController)
+            TransactionDayGroup(date = date, transactions = groupedTransactions[date]!!.toMutableList(), navController = navController)
         }
     }
 }

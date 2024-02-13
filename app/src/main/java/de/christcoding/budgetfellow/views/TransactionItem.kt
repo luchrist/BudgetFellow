@@ -1,5 +1,6 @@
 package de.christcoding.budgetfellow.views
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -23,6 +24,7 @@ import androidx.navigation.NavHostController
 import de.christcoding.budgetfellow.data.models.Transaction
 import de.christcoding.budgetfellow.data.models.TransactionDetails
 import de.christcoding.budgetfellow.navigation.Screen
+import de.christcoding.budgetfellow.ui.theme.CardBackground
 import de.christcoding.budgetfellow.ui.theme.Shapes
 import de.christcoding.budgetfellow.viewmodels.AppViewModelProvider
 import de.christcoding.budgetfellow.viewmodels.ApplicationViewModel
@@ -35,6 +37,7 @@ fun TransactionItem(transaction: TransactionDetails, navController: NavHostContr
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .background(CardBackground)
             .padding(8.dp)
             .clickable(onClick = {navController.navigate("${Screen.BottomNavigationScreens.TransactionDetail.route}/${transaction.id}")})
     ) {

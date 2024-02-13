@@ -68,6 +68,12 @@ class TransactionViewModel(
             )
         })
     }
+
+    fun deleteTransaction(transaction: Transaction) {
+        viewModelScope.launch {
+            transactionRepository.deleteATransaction(transaction)
+        }
+    }
 }
 
 sealed interface TransactionsUiState {
