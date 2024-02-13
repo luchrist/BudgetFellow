@@ -33,6 +33,7 @@ import de.christcoding.budgetfellow.viewmodels.AppViewModelProvider
 import de.christcoding.budgetfellow.viewmodels.ApplicationViewModel
 import de.christcoding.budgetfellow.viewmodels.BudgetUiState
 import de.christcoding.budgetfellow.viewmodels.BudgetsViewModel
+import de.christcoding.budgetfellow.viewmodels.TransactionsUiState
 
 @Composable
 fun BudgetsScreen(navController: NavHostController, padding: PaddingValues) {

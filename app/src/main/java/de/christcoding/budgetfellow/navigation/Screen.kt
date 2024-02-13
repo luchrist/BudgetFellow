@@ -15,8 +15,13 @@ sealed class Screen(val route: String) {
     object BudgetDetail : Screen("budget_detail_screen")
     object Home : Screen("home_screen")
 
+
     sealed class BottomNavigationScreens(val bRoute: String, @DrawableRes val icon: Int, val title: String): Screen(bRoute) {
         object Transactions: BottomNavigationScreens("transactions", R.drawable._177548_ecommerce_shop_transaction_icon, "Transactions")
         object Budgets: BottomNavigationScreens("budgets", R.drawable._0735565_arrow_down_tray_icon, "Budgets")
+        object BudgetDetail: BottomNavigationScreens("budget_detail", R.drawable._0735565_arrow_down_tray_icon, "Edit Budget")
+        object BudgetCreate: BottomNavigationScreens("budget_create", R.drawable._0735565_arrow_down_tray_icon, "Create Budget")
+        object TransactionAdd: BottomNavigationScreens("transaction_add", R.drawable._177548_ecommerce_shop_transaction_icon, "Add Transaction")
+        object TransactionDetail: BottomNavigationScreens("transaction_detail", R.drawable._177548_ecommerce_shop_transaction_icon, "Edit Transaction")
     }
 }

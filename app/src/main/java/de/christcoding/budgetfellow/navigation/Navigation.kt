@@ -12,10 +12,12 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import de.christcoding.budgetfellow.utils.StartScreenState
 import de.christcoding.budgetfellow.views.AddFirstIncomeScreen
+import de.christcoding.budgetfellow.views.AddTransactionScreen
 import de.christcoding.budgetfellow.views.BudgetsIntroScreen
 import de.christcoding.budgetfellow.views.BudgetsScreen
 import de.christcoding.budgetfellow.views.CreateBudgetScreen
 import de.christcoding.budgetfellow.views.EditBudgetScreen
+import de.christcoding.budgetfellow.views.EditTransactionScreen
 import de.christcoding.budgetfellow.views.HomeScreen
 import de.christcoding.budgetfellow.views.OutcomesIntroScreen
 import de.christcoding.budgetfellow.views.SetupCompleteScreen
@@ -51,10 +53,22 @@ fun Navigation(context: Context,
             HomeScreen()
         }
         composable(Screen.BottomNavigationScreens.Transactions.bRoute) {
-            TransactionsScreen(padding)
+            TransactionsScreen(navController, padding)
         }
         composable(Screen.BottomNavigationScreens.Budgets.bRoute) {
             BudgetsScreen(navController, padding)
+        }
+        composable("${Screen.BottomNavigationScreens.TransactionDetail.bRoute}/{transactionId}", arguments = listOf(navArgument("transactionId") { type = NavType.StringType })) {
+            EditTransactionScreen(navController, padding, it.arguments?.getString("transactionId") ?: "0")
+        }
+        composable("${Screen.BottomNavigationScreens.BudgetDetail.bRoute}/{budgetId}", arguments = listOf(navArgument("budgetId") { type = NavType.StringType })) {
+            EditBudgetScreen(navController, padding, it.arguments?.getString("budgetId") ?: "0")
+        }
+        composable(Screen.BottomNavigationScreens.BudgetCreate.bRoute) {
+            CreateBudgetScreen(navController, padding)
+        }
+        composable(Screen.BottomNavigationScreens.TransactionAdd.bRoute) {
+            AddTransactionScreen(navController, padding)
         }
     }
 }

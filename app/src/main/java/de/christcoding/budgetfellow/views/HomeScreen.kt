@@ -46,15 +46,27 @@ fun HomeScreen() {
         Screen.BottomNavigationScreens.Budgets
     )
     val title = when(currentRoute) {
-        Screen.BottomNavigationScreens.Transactions.bRoute -> "Transactions"
-        Screen.BottomNavigationScreens.Budgets.bRoute -> "Budgets"
+        Screen.BottomNavigationScreens.Transactions.bRoute -> Screen.BottomNavigationScreens.Transactions.title
+        Screen.BottomNavigationScreens.Budgets.bRoute -> Screen.BottomNavigationScreens.Budgets.title
+        Screen.BottomNavigationScreens.TransactionAdd.bRoute -> Screen.BottomNavigationScreens.TransactionAdd.title
+        Screen.BottomNavigationScreens.BudgetCreate.bRoute -> Screen.BottomNavigationScreens.BudgetCreate.title
+        Screen.BottomNavigationScreens.BudgetDetail.bRoute -> Screen.BottomNavigationScreens.BudgetDetail.title
+        Screen.BottomNavigationScreens.TransactionDetail.bRoute -> Screen.BottomNavigationScreens.TransactionDetail.title
         else -> ""
     }
 
     Scaffold (
         topBar = {
             if (title.isNotEmpty()){
-                CenterAlignedTopAppBar(title = { Text(text = title) })
+                CenterAlignedTopAppBar(title = { Text(text = title) },
+                    navigationIcon = {
+                        if(currentRoute != Screen.BottomNavigationScreens.Transactions.bRoute &&
+                            currentRoute != Screen.BottomNavigationScreens.Budgets.bRoute) {
+                            IconButton(onClick = { controller.popBackStack() }) {
+                                Icon(Icons.Filled.Close, contentDescription = "Close Details View")
+                            }
+                        }
+                    })
             }
                  },
         bottomBar = {

@@ -125,7 +125,7 @@ class BudgetsViewModel(
     )*/
 
     fun updateBudgetState() {
-        if(categories.isEmpty() || transactions.isEmpty() || incCategories.isEmpty() ) {
+        if(categories.isEmpty() || incCategories.isEmpty() ) {
             budgetState = BudgetUiState.Loading
         }
         val budgetDetails: List<BudgetDetails> = getBudgets(budgets)
