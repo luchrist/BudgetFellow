@@ -15,13 +15,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.core.graphics.alpha
-import androidx.core.graphics.blue
-import androidx.core.graphics.green
-import androidx.core.graphics.red
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import de.christcoding.budgetfellow.data.models.Transaction
 import de.christcoding.budgetfellow.data.models.TransactionDetails
 import de.christcoding.budgetfellow.navigation.Screen
 import de.christcoding.budgetfellow.ui.theme.CardBackground
@@ -41,7 +36,7 @@ fun TransactionItem(transaction: TransactionDetails, navController: NavHostContr
             .padding(8.dp)
             .clickable(onClick = {navController.navigate("${Screen.BottomNavigationScreens.TransactionDetail.route}/${transaction.id}")})
     ) {
-        Row(horizontalArrangement = Arrangement.SpaceBetween) {
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text(text = transaction.name, style = MaterialTheme.typography.headlineMedium)
             Text(text = "${DecimalFormat("0.#").format(transaction.amount)} ${appViewModel.currency}", style = MaterialTheme.typography.headlineMedium)
         }
