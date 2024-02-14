@@ -1,5 +1,6 @@
 package de.christcoding.budgetfellow.views
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -7,10 +8,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import de.christcoding.budgetfellow.R
@@ -41,7 +45,12 @@ fun TransactionsScreen(navController: NavHostController, padding: PaddingValues)
             }
 
             is TransactionsUiState.Success -> {
-                TransactionsList(transactions = transactionsState.transactions, navController, it)
+                Column(modifier = Modifier.padding(it)) {
+                    Text(text = "Monthly Balance: ${transactionsState.monthlyBalance}", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.padding(8.dp))
+                    Text(text = "Monthly Income: ${transactionsState.monthlyIncome}", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.padding(8.dp))
+                    Text(text = "Monthly Balance with Preconductions: ${transactionsState.futureMonthlyBalance}", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.padding(8.dp))
+                    TransactionsList(transactions = transactionsState.transactions, navController)   
+                }
             }
         }
     }

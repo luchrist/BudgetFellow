@@ -50,6 +50,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import de.christcoding.budgetfellow.AddTransactionEvent
 import de.christcoding.budgetfellow.R
 import de.christcoding.budgetfellow.TransactionMode
+import de.christcoding.budgetfellow.TransactionState
+import de.christcoding.budgetfellow.data.models.TransactionDetails
 import de.christcoding.budgetfellow.domain.ValidationEvent
 import de.christcoding.budgetfellow.utils.DateUtils
 import de.christcoding.budgetfellow.viewmodels.AddOrEditTransactionViewModel
@@ -57,8 +59,9 @@ import de.christcoding.budgetfellow.viewmodels.AppViewModelProvider
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddEditIncomeOrExpense(mode: TransactionMode) {
+fun AddEditIncomeOrExpense(mode: TransactionMode, transaction: TransactionDetails? = null) {
     val specificViewModel: AddOrEditTransactionViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    specificViewModel.setEditableTransaction(transaction)
     val context = LocalContext.current
     val state = specificViewModel.state
     var datePickerVisibility by remember {
@@ -67,6 +70,7 @@ fun AddEditIncomeOrExpense(mode: TransactionMode) {
     var isExpanded by remember {
         mutableStateOf(false)
     }
+    val addOrSave = if (transaction!=null) stringResource(R.string.save) else stringResource(R.string.add)
     
     LaunchedEffect(key1 = context) {
         specificViewModel.validationEvents.collect { event ->
@@ -85,8 +89,12 @@ fun AddEditIncomeOrExpense(mode: TransactionMode) {
         label = { Text(text = stringResource(R.string.name)) })
     AutoCompleteTextView(elements = specificViewModel.categoryNames.collectAsState().value,
         currentElement = specificViewModel.selectedCategoryName,
-        onElementChanged = { specificViewModel.onEvent(AddTransactionEvent.OnCategoryChanged(it)) },
-        title = stringResource(R.string.category), error = specificViewModel.state.catError
+        onElementChanged = {
+            specificViewModel.selectedCategoryName = it
+            specificViewModel.onEvent(AddTransactionEvent.OnCategoryChanged(it))
+                           },
+        title = stringResource(R.string.category),
+        error = specificViewModel.state.catError
     )
     OutlinedTextField(
         value = specificViewModel.transactionDescription,
@@ -244,7 +252,7 @@ fun AddEditIncomeOrExpense(mode: TransactionMode) {
     Spacer(modifier = Modifier.height(8.dp))
     OutlinedButton(onClick = {specificViewModel.onEvent(AddTransactionEvent.OnAddClicked)}) {
         Icon(Icons.Default.Add, contentDescription = "add income")
-        Text(text = stringResource(R.string.add), fontSize = 18.sp)
+        Text(text = addOrSave, fontSize = 18.sp)
     }
 
     if (datePickerVisibility) {

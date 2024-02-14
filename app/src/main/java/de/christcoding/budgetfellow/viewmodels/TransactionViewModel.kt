@@ -5,20 +5,24 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import de.christcoding.budgetfellow.BudgetState
+import de.christcoding.budgetfellow.TransactionState
 import de.christcoding.budgetfellow.data.CategoryRepository
 import de.christcoding.budgetfellow.data.TransactionRepository
 import de.christcoding.budgetfellow.data.models.Category
 import de.christcoding.budgetfellow.data.models.Transaction
 import de.christcoding.budgetfellow.data.models.TransactionDetails
+import de.christcoding.budgetfellow.utils.DateUtils
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 
 class TransactionViewModel(
     private val transactionRepository: TransactionRepository,
-    private val categoryRepository: CategoryRepository,
+    categoryRepository: CategoryRepository,
 ): ViewModel() {
 
     val categoriesFlow: StateFlow<List<Category>> = categoryRepository.getExpenseCategories()
@@ -37,6 +41,33 @@ class TransactionViewModel(
     var categories by mutableStateOf(listOf<Category>())
     var transactions by mutableStateOf(listOf<Transaction>())
 
+    private fun getAllTransaction(): List<Transaction> {
+        return getAllTransactionTillDay(LocalDate.now())
+    }
+
+    private fun getAllTransactionTillDay(day: LocalDate): List<Transaction> {
+        val allTransactions: MutableList<Transaction> = mutableListOf()
+        for(transaction in transactions) {
+            allTransactions.add(transaction)
+            if(transaction.recurring) {
+                var date = transaction.date
+                while (date.isBefore(day)) {
+                    when(transaction.recurringIntervalUnit) {
+                        "Day" -> date = date.plusDays(transaction.recurringInterval.toLong())
+                        "Week" -> date = date.plusWeeks(transaction.recurringInterval.toLong())
+                        "Month" -> date = date.plusMonths(transaction.recurringInterval.toLong())
+                        "Year" -> date = date.plusYears(transaction.recurringInterval.toLong())
+                    }
+                    if (date.isBefore(day.plusDays(1)))
+                        allTransactions.add(transaction.copy(date = date))
+                }
+            }
+        }
+        return allTransactions
+    }
+
+    var editTransactionState by mutableStateOf(TransactionDetails())
+
     init {
         viewModelScope.launch {
             categoriesFlow.collectLatest { categories = it }
@@ -53,7 +84,7 @@ class TransactionViewModel(
         if(categories.isEmpty()) {
             transactionsState = TransactionsUiState.Loading
         }
-        transactionsState = TransactionsUiState.Success(transactions.map { transaction ->
+        transactionsState = TransactionsUiState.Success(getAllTransaction().map { transaction ->
             val category = categories.find { it.id == transaction.categoryId }
             TransactionDetails(
                 id = transaction.id,
@@ -66,7 +97,33 @@ class TransactionViewModel(
                 recurringIntervalUnit = transaction.recurringIntervalUnit,
                 recurringInterval = transaction.recurringInterval
             )
-        })
+        },
+            calcMonthlyBalance(), calcMonthlyIncome(), calcFutureMonthlyBalance())
+    }
+
+    private fun calcFutureMonthlyBalance(): Double {
+        return getAllTransActionTillEndOfCycle()
+            .filter { it.date.isAfter(LocalDate.now().withDayOfMonth(1).minusDays(1)) }
+            .sumOf { it.amount }
+    }
+
+    private fun getAllTransActionTillEndOfCycle(): List<Transaction>{
+        val now = LocalDate.now()
+        return getAllTransactionTillDay(now.withDayOfMonth(now.lengthOfMonth()))
+    }
+
+    private fun calcMonthlyIncome(): Double {
+        return getAllTransaction()
+            .filter { it.date.isAfter(LocalDate.now().withDayOfMonth(1).minusDays(1)) }
+            .filter { it.amount > 0 }
+            .sumOf { it.amount }
+
+    }
+
+    private fun calcMonthlyBalance(): Double {
+        return getAllTransaction()
+            .filter { it.date.isAfter(LocalDate.now().withDayOfMonth(1).minusDays(1)) }
+            .sumOf { it.amount }
     }
 
     fun deleteTransaction(transaction: Transaction) {
@@ -74,9 +131,38 @@ class TransactionViewModel(
             transactionRepository.deleteATransaction(transaction)
         }
     }
+
+    fun updateEditTransactionState(transactionId: String) {
+        val transaction = transactions.findLast { it.id == transactionId.toLong() }
+        if (transaction != null) {
+            editTransactionState = TransactionDetails(
+                id = transaction.id,
+                name = transaction.name,
+                description = transaction.description,
+                category = categories.find { it.id == transaction.categoryId } ?: Category(name = "Uncategorized", color = 0, expense = true),
+                amount = transaction.amount,
+                date = transaction.date,
+                recurring = transaction.recurring,
+                recurringIntervalUnit = transaction.recurringIntervalUnit,
+                recurringInterval = transaction.recurringInterval
+            )
+        }
+    }
+
+    private fun mapToTransactionState(transaction: Transaction): TransactionState {
+        return TransactionState(
+            amount = transaction.amount.toString(),
+            period = transaction.recurringInterval.toString(),
+            category = transaction.categoryId.toString()
+        )
+    }
 }
 
 sealed interface TransactionsUiState {
-    data class Success(val transactions: List<TransactionDetails>) : TransactionsUiState
+    data class Success(val transactions: List<TransactionDetails>,
+        val monthlyBalance: Double,
+        val monthlyIncome: Double,
+        val futureMonthlyBalance: Double
+        ) : TransactionsUiState
     object Loading : TransactionsUiState
 }

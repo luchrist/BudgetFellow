@@ -14,10 +14,10 @@ import de.christcoding.budgetfellow.data.models.groupedByDay
 import java.time.LocalDate
 
 @Composable
-fun TransactionsList(transactions: List<TransactionDetails>, navController: NavHostController, padding: PaddingValues) {
+fun TransactionsList(transactions: List<TransactionDetails>, navController: NavHostController) {
     val groupedTransactions = transactions.groupedByDay()
 
-    LazyColumn(modifier = Modifier.padding(padding)){
+    LazyColumn{
         items(groupedTransactions.keys.toList(), key = { it.toString() }) { date ->
             TransactionDayGroup(date = date, transactions = groupedTransactions[date]!!.toMutableList(), navController = navController)
         }

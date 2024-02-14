@@ -14,6 +14,7 @@ import de.christcoding.budgetfellow.data.CategoryRepository
 import de.christcoding.budgetfellow.data.TransactionRepository
 import de.christcoding.budgetfellow.data.models.Category
 import de.christcoding.budgetfellow.data.models.Transaction
+import de.christcoding.budgetfellow.data.models.TransactionDetails
 import de.christcoding.budgetfellow.domain.ValidationEvent
 import de.christcoding.budgetfellow.domain.use_case.ValidateAmount
 import de.christcoding.budgetfellow.domain.use_case.ValidateCategory
@@ -38,6 +39,7 @@ open class AddOrEditTransactionViewModel(
     private val categoryRepository: CategoryRepository,
 ) : ViewModel() {
 
+    private var _editableTransaction: TransactionDetails? = null
     var state by mutableStateOf(TransactionState())
     private val validationEventChannel = Channel<ValidationEvent>()
     val validationEvents = validationEventChannel.receiveAsFlow()
@@ -47,6 +49,7 @@ open class AddOrEditTransactionViewModel(
     var periodUnit by mutableStateOf("Day")
     var stepDesc by mutableStateOf("Let's start by adding your first fix income.")
     var transactionName by mutableStateOf("")
+    var transactionId = 0L
     var transactionDescription by mutableStateOf("")
     var amount by mutableStateOf("")
     var id by mutableStateOf(-2L)
@@ -163,16 +166,20 @@ open class AddOrEditTransactionViewModel(
             }
             selectedCategory = selectedCategory.copy(id = categories.value.size.toLong() + 1)
         }
-        return Transaction(
-            name = transactionName,
-            description = transactionDescription,
-            categoryId = selectedCategory.id,
-            amount = value,
-            date = datePicked,
-            recurring = recurring,
-            recurringInterval = recurringPeriod.toInt(),
-            recurringIntervalUnit = periodUnit
-        )
+        var ta = Transaction(
+                name = transactionName,
+                description = transactionDescription,
+                categoryId = selectedCategory.id,
+                amount = value,
+                date = datePicked,
+                recurring = recurring,
+                recurringInterval = recurringPeriod.toInt(),
+                recurringIntervalUnit = periodUnit
+            )
+        if (transactionId > 0) {
+            ta = ta.copy(id = transactionId)
+        }
+        return ta
     }
 
     private fun addTransaction(transaction: Transaction) {
@@ -191,6 +198,7 @@ open class AddOrEditTransactionViewModel(
         recurring = false
         recurringPeriod = "1"
         periodUnit = "Day"
+        transactionId = 0
         resetValidationState()
     }
 
@@ -218,5 +226,34 @@ open class AddOrEditTransactionViewModel(
             TransactionMode.IncomeEdit -> updateIncome()
             TransactionMode.ExpenseEdit -> updateExpense()
         }
+    }
+
+    fun setEditableTransaction(transaction: TransactionDetails?) {
+        if ((_editableTransaction == null || isInvalid(_editableTransaction!!)) && transaction != null) {
+            _editableTransaction = transaction
+            transactionId = transaction.id
+            transactionName = transaction.name
+            transactionDescription = transaction.description
+            amount = transaction.amount.toString()
+            datePicked = transaction.date
+            recurring = transaction.recurring
+            recurringPeriod = transaction.recurringInterval.toString()
+            periodUnit = transaction.recurringIntervalUnit
+            selectedCategoryName = transaction.category.name
+            state = TransactionState(
+                category = transaction.category.name,
+                amount = transaction.amount.toString(),
+                period = transaction.recurringInterval.toString()
+            )
+        }
+
+    }
+
+    private fun isInvalid(trans: TransactionDetails): Boolean {
+        return if(trans.category.name.equals("Uncategorized", true)
+            && trans.name.isEmpty()
+            && trans.amount == 0.0
+            && trans.id == 0L) true
+        else false
     }
 }

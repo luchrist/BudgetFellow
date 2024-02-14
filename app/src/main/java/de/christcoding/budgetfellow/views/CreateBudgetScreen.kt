@@ -46,10 +46,15 @@ fun CreateBudgetScreen(navController: NavHostController, padding: PaddingValues)
         }
     ){
         Column (Modifier.padding(it)){
-            AutoCompleteTextView(elements = vm.expCategories.map { it.name}, currentElement = budgetState.category, onElementChanged = {
+            AutoCompleteTextView(elements = vm.expCategories.map { it.name},
+                currentElement = budgetState.category,
+                onElementChanged = {
                 vm.createBudgetState = budgetState.copy(category = it)
                 vm.checkIfEnough()
-            }, title = stringResource(R.string.category), error = budgetState.catError)
+                },
+                title = stringResource(R.string.category),
+                error = budgetState.catError
+            )
             OutlinedTextField(value = budgetState.amount, onValueChange = {
                 vm.createBudgetState = budgetState.copy(amount = it)
                 vm.checkIfEnough()
