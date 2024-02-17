@@ -30,7 +30,9 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import de.christcoding.budgetfellow.navigation.Navigation
 import de.christcoding.budgetfellow.navigation.Screen
+import de.christcoding.budgetfellow.ui.theme.CardBackground
 import de.christcoding.budgetfellow.ui.theme.TopAppBarBackground
+import de.christcoding.budgetfellow.ui.theme.Unselected
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -78,7 +80,7 @@ fun HomeScreen() {
         NavigationBar(Modifier.wrapContentWidth(), containerColor = TopAppBarBackground ) {
               screensInBottom.forEach {
                   val isSelected = currentRoute == it.bRoute
-                  val tint = if(isSelected)Color.White else Color.Black
+                  val tint = if(isSelected)Color.White else Unselected
                   BottomNavigationItem(selected = currentRoute == it.bRoute,
                       onClick = { controller.navigate(it.bRoute) },
                       icon = {
@@ -91,7 +93,7 @@ fun HomeScreen() {
                           Text(text = it.title, color = tint)
                       },
                       selectedContentColor = Color.White,
-                      unselectedContentColor = Color.Black)
+                      unselectedContentColor = Unselected)
               }      
         }
     }){

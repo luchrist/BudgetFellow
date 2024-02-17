@@ -1,6 +1,5 @@
 package de.christcoding.budgetfellow.views
 
-import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -17,16 +16,10 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import de.christcoding.budgetfellow.navigation.Screen
 import de.christcoding.budgetfellow.viewmodels.AppViewModelProvider
 import de.christcoding.budgetfellow.viewmodels.BudgetsViewModel
 
@@ -64,10 +57,10 @@ fun EditBudgetScreen(navController: NavHostController, padding: PaddingValues, b
         }
         if (vm.rows > 0) {
             Toast.makeText(ctx, "Budget updated", Toast.LENGTH_SHORT).show()
-            navController.navigate(Screen.SetBudgets.route)
+            navController.popBackStack()
         }
         if (vm.deletedRows > 0) {
-            navController.navigate(Screen.SetBudgets.route)
+            navController.popBackStack()
         }
     }
 }

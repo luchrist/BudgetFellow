@@ -19,13 +19,14 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.time.Month
 
 class TransactionViewModel(
     private val transactionRepository: TransactionRepository,
     categoryRepository: CategoryRepository,
 ): ViewModel() {
 
-    val categoriesFlow: StateFlow<List<Category>> = categoryRepository.getExpenseCategories()
+    val categoriesFlow: StateFlow<List<Category>> = categoryRepository.getAllCategory()
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
@@ -40,6 +41,27 @@ class TransactionViewModel(
         )
     var categories by mutableStateOf(listOf<Category>())
     var transactions by mutableStateOf(listOf<Transaction>())
+    var currentMonth by mutableStateOf(convertToCamelCase(LocalDate.now().month))
+
+    private fun convertToCamelCase(month: Month?): String {
+        when(month)
+        {
+            Month.JANUARY -> return "January"
+            Month.FEBRUARY -> return "February"
+            Month.MARCH -> return "March"
+            Month.APRIL -> return "April"
+            Month.MAY -> return "May"
+            Month.JUNE -> return "June"
+            Month.JULY -> return "July"
+            Month.AUGUST -> return "August"
+            Month.SEPTEMBER -> return "September"
+            Month.OCTOBER -> return "October"
+            Month.NOVEMBER -> return "November"
+            Month.DECEMBER -> return "December"
+            else -> {
+                return "January"}
+        }
+    }
 
     private fun getAllTransaction(): List<Transaction> {
         return getAllTransactionTillDay(LocalDate.now())
@@ -123,6 +145,7 @@ class TransactionViewModel(
     private fun calcMonthlyBalance(): Double {
         return getAllTransaction()
             .filter { it.date.isAfter(LocalDate.now().withDayOfMonth(1).minusDays(1)) }
+            .filter { it.date.isBefore(LocalDate.now().plusDays(1)) }
             .sumOf { it.amount }
     }
 

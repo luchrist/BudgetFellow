@@ -130,7 +130,14 @@ class BudgetsViewModel(
         }
         val budgetDetails: List<BudgetDetails> = getBudgets(budgets)
         val savingsPerMonth = calcSavingPerMonth(budgetDetails)
-        budgetState = BudgetUiState.Success(budgets = budgetDetails, savingsPerMonth = savingsPerMonth)
+        val leftInBudgets = calcLeftInBudgets(budgetDetails)
+        budgetState = BudgetUiState.Success(budgets = budgetDetails, savingsPerMonth = savingsPerMonth, leftInBudgets = leftInBudgets)
+    }
+
+    private fun calcLeftInBudgets(budgetDetails: List<BudgetDetails>): Double {
+        val totalBudget = budgetDetails.sumOf { it.amount }
+        val totalSpent = budgetDetails.sumOf { it.spent }
+        return totalBudget - totalSpent
     }
 
     private fun calcSavingPerMonth(budgetDetails: List<BudgetDetails>): Double {
@@ -181,14 +188,26 @@ class BudgetsViewModel(
     private fun getBudgetForCategory(category: Category, budgets: List<Budget>): BudgetDetails? {
         for (budget in budgets) {
             if (budget.categoryId == category.id) {
+                val spent = getSpentAmountForCategory(category.id)
                 return BudgetDetails(
                     id = budget.id,
                     category = category,
                     amount = budget.amount,
-                    spent = budget.spent)
+                    spent = spent)
             }
         }
         return createBudgetForCategory(category)
+    }
+
+    private fun getSpentAmountForCategory(categoryId: Long): Double {
+        val transactionsOfCurrentMonth: List<Transaction> = getTransactionsOfCurrentMonth()
+        var spent = 0.0
+        for (transaction in transactionsOfCurrentMonth) {
+            if (transaction.categoryId == categoryId) {
+                spent -= transaction.amount
+            }
+        }
+        return spent
     }
 
     private fun createBudgetForCategory(category: Category): BudgetDetails? {
@@ -196,7 +215,7 @@ class BudgetsViewModel(
         var newBudgetAmount = 0.0
         for (transaction in transactionsOfCurrentMonth) {
             if (transaction.categoryId == category.id) {
-                newBudgetAmount += transaction.amount
+                newBudgetAmount -= transaction.amount
             }
         }
         if(newBudgetAmount == 0.0) {
@@ -272,7 +291,7 @@ class BudgetsViewModel(
         val budget = budgets.findLast { it.id == budgetId.toLong() }
         if (budget != null) {
             editBudgetState = BudgetState(
-                amount = (budget.amount * -1).toString(),
+                amount = (budget.amount).toString(),
                 category = categories.find { category -> category.id == budget.categoryId }?.name ?: "",
                 spent = budget.spent.toString()
             )
@@ -311,6 +330,6 @@ data class CreateBudgetUiState(
 )
 
 sealed interface BudgetUiState {
-    data class Success(val budgets: List<BudgetDetails>, val savingsPerMonth: Double) : BudgetUiState
+    data class Success(val budgets: List<BudgetDetails>, val savingsPerMonth: Double, val leftInBudgets: Double) : BudgetUiState
     object Loading : BudgetUiState
 }

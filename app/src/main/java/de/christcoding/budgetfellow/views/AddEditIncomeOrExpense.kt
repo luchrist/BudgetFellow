@@ -61,7 +61,7 @@ import de.christcoding.budgetfellow.viewmodels.AppViewModelProvider
 @Composable
 fun AddEditIncomeOrExpense(mode: TransactionMode, transaction: TransactionDetails? = null) {
     val specificViewModel: AddOrEditTransactionViewModel = viewModel(factory = AppViewModelProvider.Factory)
-    specificViewModel.setEditableTransaction(transaction)
+    specificViewModel.setEditableTransaction(transaction, mode)
     val context = LocalContext.current
     val state = specificViewModel.state
     var datePickerVisibility by remember {

@@ -228,22 +228,26 @@ open class AddOrEditTransactionViewModel(
         }
     }
 
-    fun setEditableTransaction(transaction: TransactionDetails?) {
+    fun setEditableTransaction(transaction: TransactionDetails?, mode: TransactionMode) {
         if ((_editableTransaction == null || isInvalid(_editableTransaction!!)) && transaction != null) {
-            _editableTransaction = transaction
-            transactionId = transaction.id
-            transactionName = transaction.name
-            transactionDescription = transaction.description
-            amount = transaction.amount.toString()
-            datePicked = transaction.date
-            recurring = transaction.recurring
-            recurringPeriod = transaction.recurringInterval.toString()
-            periodUnit = transaction.recurringIntervalUnit
-            selectedCategoryName = transaction.category.name
+            var trans = transaction
+            if(mode == TransactionMode.ExpenseEdit) {
+                trans = transaction.copy(amount = transaction.amount * -1)
+            }
+            _editableTransaction = trans
+            transactionId = trans.id
+            transactionName = trans.name
+            transactionDescription = trans.description
+            amount = trans.amount.toString()
+            datePicked = trans.date
+            recurring = trans.recurring
+            recurringPeriod = trans.recurringInterval.toString()
+            periodUnit = trans.recurringIntervalUnit
+            selectedCategoryName = trans.category.name
             state = TransactionState(
-                category = transaction.category.name,
-                amount = transaction.amount.toString(),
-                period = transaction.recurringInterval.toString()
+                category = trans.category.name,
+                amount = trans.amount.toString(),
+                period = trans.recurringInterval.toString()
             )
         }
 

@@ -22,7 +22,10 @@ val TextPrimary = Color.White
 val Destructive = Color(0xFFFF453A)
 val Primary = Color(0xFF0A84FF)
 val CardBackground = Color(0xFF45464F)
+val Unselected = Color(0xFF54555F)
 val PrimaryLight = Color(0xFF2692FF)
+val Positive = Color(0xFF4CD964)
+val Medium = Color(0xFFFFCF3F)
 
 val SystemGray04 = Color(0xFF3A3A3C)
 val BackgroundElevated = Color(0xFF1C1C1E)

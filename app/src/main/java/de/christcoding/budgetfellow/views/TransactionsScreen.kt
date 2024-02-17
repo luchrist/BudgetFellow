@@ -1,11 +1,16 @@
 package de.christcoding.budgetfellow.views
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -13,12 +18,17 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import de.christcoding.budgetfellow.R
 import de.christcoding.budgetfellow.navigation.Screen
+import de.christcoding.budgetfellow.ui.theme.BackgroundElevated
+import de.christcoding.budgetfellow.ui.theme.CardBackground
+import de.christcoding.budgetfellow.ui.theme.Positive
+import de.christcoding.budgetfellow.ui.theme.Primary
 import de.christcoding.budgetfellow.viewmodels.AppViewModelProvider
 import de.christcoding.budgetfellow.viewmodels.BudgetUiState
 import de.christcoding.budgetfellow.viewmodels.TransactionViewModel
@@ -46,9 +56,19 @@ fun TransactionsScreen(navController: NavHostController, padding: PaddingValues)
 
             is TransactionsUiState.Success -> {
                 Column(modifier = Modifier.padding(it)) {
-                    Text(text = "Monthly Balance: ${transactionsState.monthlyBalance}", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.padding(8.dp))
-                    Text(text = "Monthly Income: ${transactionsState.monthlyIncome}", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.padding(8.dp))
-                    Text(text = "Monthly Balance with Preconductions: ${transactionsState.futureMonthlyBalance}", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.padding(8.dp))
+                    Column(modifier = Modifier.fillMaxWidth().padding(8.dp).background(BackgroundElevated)) {
+                        Text(text = "${vm.currentMonth} Balance", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.padding(top = 8.dp))
+                        Text(text = "${transactionsState.monthlyBalance} €", style = MaterialTheme.typography.headlineLarge, modifier = Modifier.padding(bottom = 8.dp))
+                    }
+                    Column(modifier = Modifier.fillMaxWidth().padding(8.dp).background(BackgroundElevated)) {
+                        Text(text = "${vm.currentMonth} Planned Balance", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.padding(top = 8.dp))
+                        Text(text = "${transactionsState.futureMonthlyBalance} €", style = MaterialTheme.typography.headlineLarge)
+                        Button(onClick = { /*TODO*/ },modifier = Modifier.padding(bottom = 8.dp) ,contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp) ,enabled = false, colors = ButtonColors(disabledContainerColor = Positive, disabledContentColor = Color.White, containerColor = Positive, contentColor = Color.White)) {
+                            Icon(painterResource(id = R.drawable.baseline_trending_up_24), contentDescription = null)
+                            Spacer(modifier = Modifier.padding(4.dp))
+                            Text(text = "+13%")
+                        }
+                    }
                     TransactionsList(transactions = transactionsState.transactions, navController)   
                 }
             }

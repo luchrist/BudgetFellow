@@ -1,9 +1,12 @@
 package de.christcoding.budgetfellow.views
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -12,12 +15,17 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -29,6 +37,9 @@ import de.christcoding.budgetfellow.navigation.Screen
 import de.christcoding.budgetfellow.ui.components.BudgetCard
 import de.christcoding.budgetfellow.ui.components.SubTitle
 import de.christcoding.budgetfellow.ui.components.Title
+import de.christcoding.budgetfellow.ui.theme.BackgroundElevated
+import de.christcoding.budgetfellow.ui.theme.Medium
+import de.christcoding.budgetfellow.ui.theme.Positive
 import de.christcoding.budgetfellow.viewmodels.AppViewModelProvider
 import de.christcoding.budgetfellow.viewmodels.ApplicationViewModel
 import de.christcoding.budgetfellow.viewmodels.BudgetUiState
@@ -49,9 +60,18 @@ fun BudgetsScreen(navController: NavHostController, padding: PaddingValues) {
         }
         is BudgetUiState.Success -> {
             Column(modifier = Modifier.padding(padding)) {
-                Title(title = "SET YOUR BUDGETS")
-                SubTitle(subTitle = "Edit existing budgets or create new ones")
-                Text(text = "You will save ${budgetUiState.savingsPerMonth} ${appViewModel.currency} per month")
+                Column(modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+                    .background(
+                        BackgroundElevated
+                    )) {
+                    Text(text = "Estimated Monthly Savings", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.padding(top = 8.dp))
+                    Text(text = "${budgetUiState.savingsPerMonth} ${appViewModel.currency}", style = MaterialTheme.typography.headlineLarge, modifier = Modifier.padding(bottom = 8.dp))
+                    OutlinedButton(onClick = { /*TODO*/ },modifier = Modifier.padding(bottom = 8.dp) ,contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp) ,enabled = false, colors = ButtonColors(disabledContainerColor = Color.Transparent, disabledContentColor = Medium, containerColor = Color.Transparent, contentColor = Color.White)) {
+                        Text(text = "${budgetUiState.leftInBudgets}${appViewModel.currency} left in budgets")
+                    }
+                }
                 //val budgets by vm.budgets.collectAsState(initial = listOf())
                 LazyVerticalGrid(columns = GridCells.Fixed(2)) {
                     items(budgetUiState.budgets) { budget ->
