@@ -5,7 +5,9 @@ import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -18,11 +20,13 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import de.christcoding.budgetfellow.AddTransactionEvent
@@ -45,7 +49,10 @@ fun CreateBudgetScreen(navController: NavHostController, padding: PaddingValues)
                 }} )
         }
     ){
-        Column (Modifier.padding(it)){
+        Column (
+            Modifier
+                .padding(it)
+                .padding(start = 16.dp)){
             AutoCompleteTextView(elements = vm.expCategories.map { it.name},
                 currentElement = budgetState.category,
                 onElementChanged = {
@@ -63,11 +70,17 @@ fun CreateBudgetScreen(navController: NavHostController, padding: PaddingValues)
                     imeAction = ImeAction.Done,
                     keyboardType = KeyboardType.Number
                 ),
+                shape = RoundedCornerShape(16.dp),
                 isError = budgetState.amountError != null,
                 label = { Text(text = stringResource(R.string.amount)) }
             )
-            Button(onClick = {vm.saveBudget()}) {
-                Text(text = "Create")
+            Column(
+                Modifier.fillMaxWidth().padding(top = 8.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Button(onClick = {vm.saveBudget()}) {
+                    Text(text = "Create")
+                }
             }
         }
         if(vm.id > -1) {

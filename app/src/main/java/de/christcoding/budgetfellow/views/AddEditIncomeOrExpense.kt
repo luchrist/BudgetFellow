@@ -37,6 +37,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -130,20 +131,20 @@ fun AddEditIncomeOrExpense(mode: TransactionMode, transaction: TransactionDetail
         }
     }
     Spacer(modifier = Modifier.height(8.dp))
-    OutlinedButton(onClick = { datePickerVisibility = true }) {
-        Text(text = specificViewModel.datePicked.toString(), fontSize = 16.sp)
-    }
-
-    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-        Text(
-            modifier = Modifier.padding(top = 10.dp),
-            text = stringResource(R.string.recurring)
-        )
-        Switch(checked = specificViewModel.recurring, onCheckedChange = {
-            specificViewModel.recurring = it
-        })
-    }
-    if (specificViewModel.recurring) {
+    Column (horizontalAlignment = Alignment.CenterHorizontally){
+        OutlinedButton(onClick = { datePickerVisibility = true }) {
+            Text(text = specificViewModel.datePicked.toString(), fontSize = 16.sp)
+        }
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+            Text(
+                modifier = Modifier.padding(top = 10.dp),
+                text = stringResource(R.string.recurring)
+            )
+            Switch(checked = specificViewModel.recurring, onCheckedChange = {
+                specificViewModel.recurring = it
+            })
+        }
+        if (specificViewModel.recurring) {
             Row() {
                 OutlinedTextField(
                     value = specificViewModel.recurringPeriod,
@@ -248,11 +249,12 @@ fun AddEditIncomeOrExpense(mode: TransactionMode, transaction: TransactionDetail
             if(state.periodError != null) {
                 Text(text = state.periodError, color = MaterialTheme.colorScheme.error, textAlign = TextAlign.Start, modifier = Modifier.fillMaxWidth())
             }
-    }
-    Spacer(modifier = Modifier.height(8.dp))
-    OutlinedButton(onClick = {specificViewModel.onEvent(AddTransactionEvent.OnAddClicked)}) {
-        Icon(Icons.Default.Add, contentDescription = "add income")
-        Text(text = addOrSave, fontSize = 18.sp)
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        OutlinedButton(onClick = {specificViewModel.onEvent(AddTransactionEvent.OnAddClicked)}) {
+            Icon(Icons.Default.Add, contentDescription = "add income")
+            Text(text = addOrSave, fontSize = 18.sp)
+        }
     }
 
     if (datePickerVisibility) {

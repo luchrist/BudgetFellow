@@ -1,10 +1,14 @@
 package de.christcoding.budgetfellow.views
 
 import android.widget.Toast
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
@@ -16,12 +20,15 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import de.christcoding.budgetfellow.viewmodels.AppViewModelProvider
 import de.christcoding.budgetfellow.viewmodels.BudgetsViewModel
+import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,10 +46,17 @@ fun EditBudgetScreen(navController: NavHostController, padding: PaddingValues, b
                 } )
         }
     ){
-        Column (Modifier.padding(it)){
-            OutlinedTextField(value = vm.editBudgetState.category, onValueChange = {}, readOnly = true)
-            OutlinedTextField(value = vm.editBudgetState.amount, onValueChange = {vm.editBudgetState = vm.editBudgetState.copy(amount = it)})
-            Row {
+        Column (
+            Modifier
+                .padding(it)
+                .padding(start = 16.dp)){
+            OutlinedTextField(value = vm.editBudgetState.category, onValueChange = {}, readOnly = true, shape = RoundedCornerShape(16.dp))
+            Spacer(modifier = Modifier.padding(8.dp))
+            OutlinedTextField(value = vm.editBudgetState.amount, onValueChange = {vm.editBudgetState = vm.editBudgetState.copy(amount = it)}, shape = RoundedCornerShape(16.dp),)
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp), horizontalArrangement = Arrangement.SpaceEvenly) {
                 Button(onClick = {
                     vm.deleteBudget(budgetId)
                 }) {

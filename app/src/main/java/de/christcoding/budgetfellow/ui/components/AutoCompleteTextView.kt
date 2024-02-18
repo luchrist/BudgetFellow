@@ -66,8 +66,8 @@ fun AutoCompleteTextView(elements: List<String>, currentElement: String, onEleme
     // Category Field
     Column(
         modifier = Modifier
-            .padding(8.dp)
             .fillMaxWidth()
+            .padding(vertical = 8.dp)
             .clickable(
                 interactionSource = interactionSource,
                 indication = null,

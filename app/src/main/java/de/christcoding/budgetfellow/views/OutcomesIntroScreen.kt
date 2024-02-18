@@ -26,11 +26,11 @@ fun OutcomesIntroScreen(navController: NavHostController) {
     val vm: IntroViewModel = viewModel(factory = AppViewModelProvider.Factory)
     vm.skip = stringResource(R.string.skip)
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
+        horizontalAlignment = Alignment.Start,
         verticalArrangement = Arrangement.Top,
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(24.dp)
     ) {
         Text(text = stringResource(R.string.almost_done_now_add_all_your_fix_expenses))
         AddEditIncomeOrExpense(mode = TransactionMode.ExpenseAdd)

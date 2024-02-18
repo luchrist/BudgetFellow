@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -14,6 +15,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -36,21 +38,27 @@ fun AddFirstIncomeScreen(navController: NavHostController) {
         sp.edit().putBoolean(Constants.FIRST_OPENING, false).apply()
     }
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
+        horizontalAlignment = Alignment.Start,
         verticalArrangement = Arrangement.Top,
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(24.dp)
     ) {
         if (vm.firstIncome) {
             Text(
-                text = ctx.getString(R.string.hi_i_am_your_budget_fellow_i_will_help_you_reach_your_financial_goals),
-                style = MaterialTheme.typography.headlineMedium
+                text = ctx.getString(R.string.hi_i_am_your_budget_fellow),
+                style = MaterialTheme.typography.titleMedium
             )
-            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = stringResource(R.string.here_to_help_you_reach_your_financial_goals),
+                style = MaterialTheme.typography.titleSmall
+            )
+            Spacer(modifier = Modifier.height(6.dp))
+            Divider()
+            Spacer(modifier = Modifier.height(6.dp))
             Text(
                 text = ctx.getString(R.string.let_s_start_by_adding_your_first_income),
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.titleSmall
             )
         } else {
             Text(

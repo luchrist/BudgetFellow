@@ -2,7 +2,7 @@
     <string name="app_name">BudgetFellow</string>
     <string name="name_of_income">Name of income</string>
     <string name="let_s_start_by_adding_your_first_income">Let\'s start by adding your first fix income.</string>
-    <string name="hi_i_am_your_budget_fellow_i_will_help_you_reach_your_financial_goals">Hi I am your Budget Fellow!\nI will help you reach your financial goals.</string>
+    <string name="hi_i_am_your_budget_fellow">Hi, I am your Budget Fellow!</string>
     <string name="description">Description</string>
     <string name="value">Value</string>
     <string name="date">Date</string>
@@ -34,4 +34,5 @@
     <string name="loading">Loading</string>
     <string name="save">Save</string>
     <string name="left">Left</string>
+    <string name="here_to_help_you_reach_your_financial_goals">Here to help you reach your financial goals.</string>
 </resources>
