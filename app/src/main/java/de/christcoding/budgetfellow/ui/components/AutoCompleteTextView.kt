@@ -98,7 +98,7 @@ fun AutoCompleteTextView(elements: List<String>, currentElement: String, onEleme
                     label = { Text(text = title) },
                     isError = error != null,
                     textStyle = TextStyle(
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontSize = 16.sp
                     ),
                     keyboardOptions = KeyboardOptions(
@@ -112,7 +112,7 @@ fun AutoCompleteTextView(elements: List<String>, currentElement: String, onEleme
                                 modifier = Modifier.size(24.dp),
                                 imageVector = Icons.Rounded.KeyboardArrowDown,
                                 contentDescription = "arrow",
-                                tint = Color.White
+                                tint = MaterialTheme.colorScheme.onSurface
                             )
                         }
                     }

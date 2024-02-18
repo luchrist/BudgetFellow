@@ -64,11 +64,11 @@ fun BudgetsScreen(navController: NavHostController, padding: PaddingValues) {
                     .fillMaxWidth()
                     .padding(8.dp)
                     .background(
-                        BackgroundElevated
+                        MaterialTheme.colorScheme.surfaceVariant
                     )) {
                     Text(text = "Estimated Monthly Savings", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.padding(top = 8.dp))
                     Text(text = "${budgetUiState.savingsPerMonth} ${appViewModel.currency}", style = MaterialTheme.typography.headlineLarge, modifier = Modifier.padding(bottom = 8.dp))
-                    OutlinedButton(onClick = { /*TODO*/ },modifier = Modifier.padding(bottom = 8.dp) ,contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp) ,enabled = false, colors = ButtonColors(disabledContainerColor = Color.Transparent, disabledContentColor = Medium, containerColor = Color.Transparent, contentColor = Color.White)) {
+                    OutlinedButton(onClick = { /*TODO*/ },modifier = Modifier.padding(bottom = 8.dp) ,contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp) ,enabled = false, colors = ButtonColors(disabledContainerColor = Color.Transparent, disabledContentColor = MaterialTheme.colorScheme.primary, containerColor = Color.Transparent, contentColor = Color.White)) {
                         Text(text = "${budgetUiState.leftInBudgets}${appViewModel.currency} left in budgets")
                     }
                 }

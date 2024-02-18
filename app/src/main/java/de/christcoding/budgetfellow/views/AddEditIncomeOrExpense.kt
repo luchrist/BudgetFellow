@@ -60,8 +60,8 @@ import de.christcoding.budgetfellow.viewmodels.AppViewModelProvider
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddEditIncomeOrExpense(mode: TransactionMode, transaction: TransactionDetails? = null) {
-    val specificViewModel: AddOrEditTransactionViewModel = viewModel(factory = AppViewModelProvider.Factory)
+fun AddEditIncomeOrExpense(mode: TransactionMode, transaction: TransactionDetails? = null, specificViewModel: AddOrEditTransactionViewModel) {
+    //val specificViewModel: AddOrEditTransactionViewModel = viewModel(factory = AppViewModelProvider.Factory)
     specificViewModel.setEditableTransaction(transaction, mode)
     val context = LocalContext.current
     val state = specificViewModel.state

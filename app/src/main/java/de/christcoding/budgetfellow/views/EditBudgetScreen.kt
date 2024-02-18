@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
@@ -23,6 +24,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -52,7 +55,15 @@ fun EditBudgetScreen(navController: NavHostController, padding: PaddingValues, b
                 .padding(start = 16.dp)){
             OutlinedTextField(value = vm.editBudgetState.category, onValueChange = {}, readOnly = true, shape = RoundedCornerShape(16.dp))
             Spacer(modifier = Modifier.padding(8.dp))
-            OutlinedTextField(value = vm.editBudgetState.amount, onValueChange = {vm.editBudgetState = vm.editBudgetState.copy(amount = it)}, shape = RoundedCornerShape(16.dp),)
+            OutlinedTextField(
+                value = vm.editBudgetState.amount,
+                onValueChange = {vm.editBudgetState = vm.editBudgetState.copy(amount = it)},
+                shape = RoundedCornerShape(16.dp),
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Done,
+                    keyboardType = KeyboardType.Number
+                )
+            )
             Row(
                 Modifier
                     .fillMaxWidth()

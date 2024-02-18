@@ -39,5 +39,5 @@ fun SetupCompleteScreen(navigateToHome: () -> Unit) {
         StartScreenState(ctx).updateStartingScreen(Screen.BottomNavigationScreens.Transactions.bRoute)
         sp.edit().putBoolean(Constants.INTRO, false).apply()
         navigateToHome()
-    })
+    }, vm.skip)
 }

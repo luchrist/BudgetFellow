@@ -4,8 +4,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavHostController
+import de.christcoding.budgetfellow.R
 import de.christcoding.budgetfellow.navigation.Screen
 import de.christcoding.budgetfellow.ui.components.SubTitle
 import de.christcoding.budgetfellow.ui.components.Title
@@ -22,5 +23,5 @@ fun BudgetsIntroScreen(navController: NavHostController) {
     NextSkipButton(onClickActions = {
         navController.navigate(Screen.SetupComplete.route)
         StartScreenState(ctx).updateStartingScreen(Screen.SetupComplete.route)
-    })
+    }, stringResource(id = R.string.skip))
 }

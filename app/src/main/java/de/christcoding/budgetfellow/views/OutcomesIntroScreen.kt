@@ -24,7 +24,6 @@ import de.christcoding.budgetfellow.viewmodels.IntroViewModel
 fun OutcomesIntroScreen(navController: NavHostController) {
     val ctx = LocalContext.current
     val vm: IntroViewModel = viewModel(factory = AppViewModelProvider.Factory)
-    vm.skip = stringResource(R.string.skip)
     Column(
         horizontalAlignment = Alignment.Start,
         verticalArrangement = Arrangement.Top,
@@ -33,10 +32,10 @@ fun OutcomesIntroScreen(navController: NavHostController) {
             .padding(24.dp)
     ) {
         Text(text = stringResource(R.string.almost_done_now_add_all_your_fix_expenses))
-        AddEditIncomeOrExpense(mode = TransactionMode.ExpenseAdd)
+        AddEditIncomeOrExpense(mode = TransactionMode.ExpenseAdd, specificViewModel = vm)
     }
     NextSkipButton( onClickActions = {
         navController.navigate(Screen.SetBudgets.route)
         StartScreenState(ctx).updateStartingScreen(Screen.SetBudgets.route)
-    })
+    }, vm.skip)
 }

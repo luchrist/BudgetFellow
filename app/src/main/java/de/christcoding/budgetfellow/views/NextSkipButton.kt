@@ -17,8 +17,7 @@ import de.christcoding.budgetfellow.viewmodels.AppViewModelProvider
 import de.christcoding.budgetfellow.viewmodels.IntroViewModel
 
 @Composable
-fun NextSkipButton(onClickActions: () -> Unit) {
-    val vm: IntroViewModel = viewModel(factory = AppViewModelProvider.Factory)
+fun NextSkipButton(onClickActions: () -> Unit, skipText: String) {
     Column(
         horizontalAlignment = Alignment.End,
         verticalArrangement = Arrangement.Bottom,
@@ -30,7 +29,7 @@ fun NextSkipButton(onClickActions: () -> Unit) {
             },
         ) {
             Icon(Icons.Default.ArrowForward, contentDescription = "next")
-            Text(text = vm.skip)
+            Text(text = skipText)
         }
     }
 }

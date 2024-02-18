@@ -8,15 +8,17 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import de.christcoding.budgetfellow.TransactionMode
+import de.christcoding.budgetfellow.viewmodels.AddOrEditTransactionViewModel
 import de.christcoding.budgetfellow.viewmodels.AppViewModelProvider
 import de.christcoding.budgetfellow.viewmodels.TransactionViewModel
 
 @Composable
 fun EditTransactionScreen(navController: NavHostController, padding: PaddingValues, transactionId: String) {
+    val addOrEditTransactionViewModel: AddOrEditTransactionViewModel = viewModel(factory = AppViewModelProvider.Factory)
     val vm: TransactionViewModel = viewModel(factory = AppViewModelProvider.Factory)
    vm.updateEditTransactionState(transactionId)
     val transactionMode = if(vm.editTransactionState.category.expense) TransactionMode.ExpenseEdit else TransactionMode.IncomeEdit
     Column (Modifier.padding(padding)){
-        AddEditIncomeOrExpense(mode = transactionMode, vm.editTransactionState)
+        AddEditIncomeOrExpense(mode = transactionMode, vm.editTransactionState, addOrEditTransactionViewModel)
     }
 }

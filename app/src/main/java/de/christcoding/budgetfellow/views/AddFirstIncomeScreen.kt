@@ -66,10 +66,11 @@ fun AddFirstIncomeScreen(navController: NavHostController) {
                 style = MaterialTheme.typography.titleMedium
             )
         }
-        AddEditIncomeOrExpense(TransactionMode.IncomeAdd)
+        AddEditIncomeOrExpense(TransactionMode.IncomeAdd, specificViewModel =  vm)
     }
     NextSkipButton(onClickActions = {
         navController.navigate(Screen.Outcomes.route)
         StartScreenState(ctx).updateStartingScreen(Screen.Outcomes.route)
-    })
+        vm.skip = ctx.getString(R.string.skip)
+    }, vm.skip)
 }

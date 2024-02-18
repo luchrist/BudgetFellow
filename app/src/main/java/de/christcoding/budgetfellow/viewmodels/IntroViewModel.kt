@@ -33,7 +33,7 @@ class IntroViewModel(
 
     val categoryList: MutableList<Category> =
         mutableListOf(
-            Category(name = "Salary", color = Color(0f, 0.98f, 0.016f, 0.5f).toArgb(), expense = false),
+            Category(name = "Salary", color = Color(0f, 0.68f, 0f, 0.5f).toArgb(), expense = false),
             Category(name = "Assets", color = Color(0f, 0.4f, 0.98f, 0.5f).toArgb(), expense = false),
             Category( name = "House", color = Color(0f, 0.016f, 0.98f, 0.5f).toArgb(), expense = true),
             Category( name = "Food", color = Color(0.6f, 0.4f, 0.0f, 0.4f).toArgb(), expense = true),

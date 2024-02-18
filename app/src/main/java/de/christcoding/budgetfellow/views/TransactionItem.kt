@@ -32,7 +32,7 @@ fun TransactionItem(transaction: TransactionDetails, navController: NavHostContr
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(CardBackground)
+            .background(MaterialTheme.colorScheme.surfaceBright)
             .padding(8.dp)
             .clickable(onClick = {navController.navigate("${Screen.BottomNavigationScreens.TransactionDetail.route}/${transaction.id}")})
     ) {
@@ -44,9 +44,9 @@ fun TransactionItem(transaction: TransactionDetails, navController: NavHostContr
         Surface(
             modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
             shape = Shapes.medium,
-            color = Color(transaction.category.color).copy(alpha = 0.25f)
+            color = Color(transaction.category.color).copy(alpha = 0.15f)
             ) {
-            Text(transaction.category.name, style = MaterialTheme.typography.bodySmall, color = Color( transaction.category.color))
+            Text(transaction.category.name, style = MaterialTheme.typography.bodySmall, color = Color( transaction.category.color).copy(alpha = 1f))
         }
     }
 }
