@@ -1,20 +1,17 @@
 package de.christcoding.budgetfellow.views
 
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,7 +27,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import de.christcoding.budgetfellow.navigation.Navigation
 import de.christcoding.budgetfellow.navigation.Screen
-import de.christcoding.budgetfellow.ui.theme.CardBackground
 import de.christcoding.budgetfellow.ui.theme.TopAppBarBackground
 import de.christcoding.budgetfellow.ui.theme.Unselected
 
@@ -71,6 +67,10 @@ fun HomeScreen() {
                             currentRoute != Screen.BottomNavigationScreens.Budgets.bRoute) {
                             IconButton(onClick = { controller.popBackStack() }) {
                                 Icon(Icons.Filled.Close, contentDescription = "Close Details View")
+                            }
+                        } else {
+                            IconButton(onClick = { }){
+                                Icon(Icons.Filled.Settings, contentDescription = "Settings")
                             }
                         }
                     })

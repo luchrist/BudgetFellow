@@ -70,7 +70,9 @@ class TransactionViewModel(
     private fun getAllTransactionTillDay(day: LocalDate): List<Transaction> {
         val allTransactions: MutableList<Transaction> = mutableListOf()
         for(transaction in transactions) {
-            allTransactions.add(transaction)
+            if (transaction.date.isBefore(day.plusDays(1))) {
+                allTransactions.add(transaction)
+            }
             if(transaction.recurring) {
                 var date = transaction.date
                 while (date.isBefore(day)) {
@@ -120,6 +122,20 @@ class TransactionViewModel(
                 recurringInterval = transaction.recurringInterval
             )
         },
+            getAllFutureTransactionsThisMonth().map { transaction ->
+                val category = categories.find { it.id == transaction.categoryId }
+                TransactionDetails(
+                    id = transaction.id,
+                    name = transaction.name,
+                    description = transaction.description,
+                    category = category ?: Category(name = "Uncategorized", color = 0, expense = true),
+                    amount = transaction.amount,
+                    date = transaction.date,
+                    recurring = transaction.recurring,
+                    recurringIntervalUnit = transaction.recurringIntervalUnit,
+                    recurringInterval = transaction.recurringInterval
+                )
+            },
             calcMonthlyBalance(), calcMonthlyIncome(), calcFutureMonthlyBalance())
     }
 
@@ -127,6 +143,11 @@ class TransactionViewModel(
         return getAllTransActionTillEndOfCycle()
             .filter { it.date.isAfter(LocalDate.now().withDayOfMonth(1).minusDays(1)) }
             .sumOf { it.amount }
+    }
+
+    private fun getAllFutureTransactionsThisMonth(): List<Transaction> {
+        return getAllTransActionTillEndOfCycle()
+            .filter { it.date.isAfter(LocalDate.now()) }
     }
 
     private fun getAllTransActionTillEndOfCycle(): List<Transaction>{
@@ -183,6 +204,7 @@ class TransactionViewModel(
 
 sealed interface TransactionsUiState {
     data class Success(val transactions: List<TransactionDetails>,
+        val futureTransactions: List<TransactionDetails>,
         val monthlyBalance: Double,
         val monthlyIncome: Double,
         val futureMonthlyBalance: Double

@@ -62,6 +62,7 @@ fun TransactionsScreen(navController: NavHostController, padding: PaddingValues)
                             Text(text = "+13%")
                         }
                     }
+                    FutureTransactions(transactions = transactionsState.futureTransactions, navController)
                     TransactionsList(transactions = transactionsState.transactions, navController)   
                 }
             }
