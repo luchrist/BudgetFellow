@@ -5,6 +5,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 
-class ApplicationViewModel: ViewModel() {
+open class ApplicationViewModel: ViewModel() {
     var currency by mutableStateOf("€")
 }

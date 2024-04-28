@@ -14,6 +14,7 @@ sealed class Screen(val route: String) {
     object TransactionDetail : Screen("transaction_detail_screen")
     object BudgetDetail : Screen("budget_detail_screen")
     object Home : Screen("home_screen")
+    object Settings : Screen("settings_screen")
 
 
     sealed class BottomNavigationScreens(val bRoute: String, @DrawableRes val icon: Int, val title: String): Screen(bRoute) {

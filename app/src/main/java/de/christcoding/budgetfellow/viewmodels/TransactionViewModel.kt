@@ -24,7 +24,7 @@ import java.time.Month
 class TransactionViewModel(
     private val transactionRepository: TransactionRepository,
     categoryRepository: CategoryRepository,
-): ViewModel() {
+): ApplicationViewModel() {
 
     val categoriesFlow: StateFlow<List<Category>> = categoryRepository.getAllCategory()
         .stateIn(
@@ -156,16 +156,27 @@ class TransactionViewModel(
     }
 
     private fun calcMonthlyIncome(): Double {
+        if(LocalDate.now().dayOfMonth < cycleStart) {
+            return getAllTransaction()
+                .filter { it.date.isAfter(LocalDate.now().withDayOfMonth(cycleStart).minusDays(1).minusMonths(1)) }
+                .filter { it.amount > 0 }
+                .sumOf { it.amount }
+        }
         return getAllTransaction()
-            .filter { it.date.isAfter(LocalDate.now().withDayOfMonth(1).minusDays(1)) }
+            .filter { it.date.isAfter(LocalDate.now().withDayOfMonth(cycleStart).minusDays(1)) }
             .filter { it.amount > 0 }
             .sumOf { it.amount }
-
     }
 
     private fun calcMonthlyBalance(): Double {
+        if(LocalDate.now().dayOfMonth < cycleStart) {
+            return getAllTransaction()
+                .filter { it.date.isAfter(LocalDate.now().withDayOfMonth(cycleStart).minusDays(1).minusMonths(1)) }
+                .filter { it.date.isBefore(LocalDate.now().plusDays(1)) }
+                .sumOf { it.amount }
+        }
         return getAllTransaction()
-            .filter { it.date.isAfter(LocalDate.now().withDayOfMonth(1).minusDays(1)) }
+            .filter { it.date.isAfter(LocalDate.now().withDayOfMonth(cycleStart).minusDays(1)) }
             .filter { it.date.isBefore(LocalDate.now().plusDays(1)) }
             .sumOf { it.amount }
     }

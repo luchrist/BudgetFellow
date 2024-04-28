@@ -56,11 +56,11 @@ fun TransactionsScreen(navController: NavHostController, padding: PaddingValues)
                     Column(modifier = Modifier.fillMaxWidth().padding(8.dp).background(MaterialTheme.colorScheme.surfaceVariant)) {
                         Text(text = "${vm.currentMonth} Planned Balance", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.padding(top = 8.dp))
                         Text(text = "${transactionsState.futureMonthlyBalance} €", style = MaterialTheme.typography.headlineLarge)
-                        Button(onClick = { /*TODO*/ },modifier = Modifier.padding(bottom = 8.dp) ,contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp) ,enabled = false, colors = ButtonColors(disabledContainerColor = Positive, disabledContentColor = Color.White, containerColor = Positive, contentColor = Color.White)) {
-                            Icon(painterResource(id = R.drawable.baseline_trending_up_24), contentDescription = null)
-                            Spacer(modifier = Modifier.padding(4.dp))
-                            Text(text = "+13%")
-                        }
+//                        Button(onClick = { /*TODO*/ },modifier = Modifier.padding(bottom = 8.dp) ,contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp) ,enabled = false, colors = ButtonColors(disabledContainerColor = Positive, disabledContentColor = Color.White, containerColor = Positive, contentColor = Color.White)) {
+//                            Icon(painterResource(id = R.drawable.baseline_trending_up_24), contentDescription = null)
+//                            Spacer(modifier = Modifier.padding(4.dp))
+//                            Text(text = "+13%")
+//                        }
                     }
                     FutureTransactions(transactions = transactionsState.futureTransactions, navController)
                     TransactionsList(transactions = transactionsState.transactions, navController)   

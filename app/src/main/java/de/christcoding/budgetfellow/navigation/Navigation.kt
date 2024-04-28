@@ -20,6 +20,7 @@ import de.christcoding.budgetfellow.views.EditBudgetScreen
 import de.christcoding.budgetfellow.views.EditTransactionScreen
 import de.christcoding.budgetfellow.views.HomeScreen
 import de.christcoding.budgetfellow.views.OutcomesIntroScreen
+import de.christcoding.budgetfellow.views.SettingsScreen
 import de.christcoding.budgetfellow.views.SetupCompleteScreen
 import de.christcoding.budgetfellow.views.TransactionsScreen
 
@@ -51,6 +52,9 @@ fun Navigation(context: Context,
         }
         composable(Screen.Home.route) {
             HomeScreen()
+        }
+        composable(Screen.Settings.route) {
+            SettingsScreen(navController)
         }
         composable(Screen.BottomNavigationScreens.Transactions.bRoute) {
             TransactionsScreen(navController, padding)

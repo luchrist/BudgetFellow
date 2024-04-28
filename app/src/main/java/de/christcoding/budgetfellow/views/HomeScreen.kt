@@ -69,7 +69,7 @@ fun HomeScreen() {
                                 Icon(Icons.Filled.Close, contentDescription = "Close Details View")
                             }
                         } else {
-                            IconButton(onClick = { }){
+                            IconButton(onClick = { controller.navigate(Screen.Settings.route) }){
                                 Icon(Icons.Filled.Settings, contentDescription = "Settings")
                             }
                         }
