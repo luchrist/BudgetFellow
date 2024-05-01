@@ -9,11 +9,15 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import de.christcoding.budgetfellow.data.datastore.StoreAppSettings
 import de.christcoding.budgetfellow.data.models.Transaction
 import de.christcoding.budgetfellow.data.models.TransactionDetails
 import de.christcoding.budgetfellow.utils.DateUtils
@@ -24,6 +28,13 @@ import java.time.LocalDate
 @Composable
 fun TransactionDayGroup(date: LocalDate, transactions: MutableList<TransactionDetails>, navController: NavHostController) {
     val vm: TransactionViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    val ctx = LocalContext.current
+    val dataStore = StoreAppSettings(ctx)
+    val start by dataStore.getCycleStart.collectAsState(1)
+    val smart by dataStore.getSmartCycle.collectAsState(false)
+
+    vm.cycleStart = start
+    vm.smartCycle = smart
     Card (modifier = Modifier
         .clip(RoundedCornerShape(8.dp))
         .padding(8.dp),

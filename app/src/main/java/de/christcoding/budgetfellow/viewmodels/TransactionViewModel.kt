@@ -3,16 +3,13 @@ package de.christcoding.budgetfellow.viewmodels
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import de.christcoding.budgetfellow.BudgetState
 import de.christcoding.budgetfellow.TransactionState
 import de.christcoding.budgetfellow.data.CategoryRepository
 import de.christcoding.budgetfellow.data.TransactionRepository
 import de.christcoding.budgetfellow.data.models.Category
 import de.christcoding.budgetfellow.data.models.Transaction
 import de.christcoding.budgetfellow.data.models.TransactionDetails
-import de.christcoding.budgetfellow.utils.DateUtils
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -25,6 +22,9 @@ class TransactionViewModel(
     private val transactionRepository: TransactionRepository,
     categoryRepository: CategoryRepository,
 ): ApplicationViewModel() {
+
+    var cycleStart by mutableStateOf(1)
+    var smartCycle by mutableStateOf(true)
 
     val categoriesFlow: StateFlow<List<Category>> = categoryRepository.getAllCategory()
         .stateIn(
@@ -152,10 +152,25 @@ class TransactionViewModel(
 
     private fun getAllTransActionTillEndOfCycle(): List<Transaction>{
         val now = LocalDate.now()
-        return getAllTransactionTillDay(now.withDayOfMonth(now.lengthOfMonth()))
+        updateCycleStart()
+        return if(cycleStart == 1) {
+            getAllTransactionTillDay(now.withDayOfMonth(now.lengthOfMonth()))
+        }
+        else if (now.dayOfMonth < cycleStart) {
+            getAllTransactionTillDay(now.withDayOfMonth(cycleStart-1))
+        } else {
+            getAllTransactionTillDay(now.plusMonths(1).withDayOfMonth(cycleStart-1))
+        }
+    }
+
+    private fun updateCycleStart() {
+        if(smartCycle) {
+            cycleStart = transactions.filter { it.recurring }.maxBy { it.amount }.date.dayOfMonth
+        }
     }
 
     private fun calcMonthlyIncome(): Double {
+        updateCycleStart()
         if(LocalDate.now().dayOfMonth < cycleStart) {
             return getAllTransaction()
                 .filter { it.date.isAfter(LocalDate.now().withDayOfMonth(cycleStart).minusDays(1).minusMonths(1)) }

@@ -31,7 +31,7 @@ class StoreAppSettings(private val context: Context) {
 
     val getSmartCycle = context.dataStore.data
         .map { settings ->
-        settings[SMART_CYCLE_KEY] ?: false
+        settings[SMART_CYCLE_KEY] ?: true
     }
 
     suspend fun updateSmartCycle(set: Boolean) {

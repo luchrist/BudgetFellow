@@ -49,7 +49,7 @@ fun SettingsScreen(navHostController: NavHostController) {
     val scope = rememberCoroutineScope()
     val dataStore = StoreAppSettings(ctx)
     val cycleStart by dataStore.getCycleStart.collectAsState(1)
-    val smartCycle by dataStore.getSmartCycle.collectAsState(false)
+    val smartCycle by dataStore.getSmartCycle.collectAsState(true)
 
    Scaffold(
        topBar = { CenterAlignedTopAppBar(title = { Text(text = "Settings")}, navigationIcon = {
