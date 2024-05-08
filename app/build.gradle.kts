@@ -69,6 +69,9 @@ dependencies {
     // Preferences DataStore (SharedPreferences like APIs)
     implementation("androidx.datastore:datastore-preferences:1.1.0")
 
+    //ColorPicker
+    implementation("com.github.skydoves:colorpicker-compose:1.0.7")
+
     implementation ("androidx.compose.material3:material3:1.2.1")
     implementation("androidx.core:core-ktx:1.13.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")

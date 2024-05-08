@@ -33,6 +33,11 @@ object AppViewModelProvider {
             )
         }
         initializer {
+            CategoriesViewModel(
+                categoryRepository = budgetFellowApp().container.categoryRepository,
+            )
+        }
+        initializer {
             TransactionViewModel(
                 transactionRepository = budgetFellowApp().container.transactionRepository,
                 categoryRepository = budgetFellowApp().container.categoryRepository,

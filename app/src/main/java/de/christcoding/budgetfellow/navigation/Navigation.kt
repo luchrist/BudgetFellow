@@ -17,6 +17,8 @@ import de.christcoding.budgetfellow.views.BudgetsIntroScreen
 import de.christcoding.budgetfellow.views.BudgetsScreen
 import de.christcoding.budgetfellow.views.CreateBudgetScreen
 import de.christcoding.budgetfellow.views.EditBudgetScreen
+import de.christcoding.budgetfellow.views.EditCategoriesScreen
+import de.christcoding.budgetfellow.views.EditCategoryScreen
 import de.christcoding.budgetfellow.views.EditTransactionScreen
 import de.christcoding.budgetfellow.views.HomeScreen
 import de.christcoding.budgetfellow.views.OutcomesIntroScreen
@@ -54,7 +56,13 @@ fun Navigation(context: Context,
             HomeScreen()
         }
         composable(Screen.Settings.route) {
-            SettingsScreen(navController)
+            SettingsScreen(navController, padding)
+        }
+        composable(Screen.EditCategories.route) {
+            EditCategoriesScreen(navController, padding)
+        }
+        composable("${Screen.EditCategory.route}/{categoryId}", arguments = listOf(navArgument("categoryId") { type = NavType.LongType })) {
+            EditCategoryScreen(navController, it.arguments?.getLong("categoryId") ?: 0, padding)
         }
         composable(Screen.BottomNavigationScreens.Transactions.bRoute) {
             TransactionsScreen(navController, padding)

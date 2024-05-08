@@ -62,11 +62,11 @@ fun TransactionsScreen(navController: NavHostController, padding: PaddingValues)
             is TransactionsUiState.Success -> {
                 Column(modifier = Modifier.padding(it)) {
                     Column(modifier = Modifier.fillMaxWidth().padding(8.dp).background(MaterialTheme.colorScheme.surfaceVariant)) {
-                        Text(text = "${vm.currentMonth} Balance", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.padding(top = 8.dp))
+                        Text(text = "Cycle Balance", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.padding(top = 8.dp))
                         Text(text = "${transactionsState.monthlyBalance} €", style = MaterialTheme.typography.headlineLarge, modifier = Modifier.padding(bottom = 8.dp))
                     }
                     Column(modifier = Modifier.fillMaxWidth().padding(8.dp).background(MaterialTheme.colorScheme.surfaceVariant)) {
-                        Text(text = "${vm.currentMonth} Planned Balance", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.padding(top = 8.dp))
+                        Text(text = "Cycle Planned Balance", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.padding(top = 8.dp))
                         Text(text = "${transactionsState.futureMonthlyBalance} €", style = MaterialTheme.typography.headlineLarge)
 //                        Button(onClick = { /*TODO*/ },modifier = Modifier.padding(bottom = 8.dp) ,contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp) ,enabled = false, colors = ButtonColors(disabledContainerColor = Positive, disabledContentColor = Color.White, containerColor = Positive, contentColor = Color.White)) {
 //                            Icon(painterResource(id = R.drawable.baseline_trending_up_24), contentDescription = null)

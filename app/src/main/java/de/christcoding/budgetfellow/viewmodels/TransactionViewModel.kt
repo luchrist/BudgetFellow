@@ -122,7 +122,7 @@ class TransactionViewModel(
                 recurringInterval = transaction.recurringInterval
             )
         },
-            getAllFutureTransactionsThisMonth().map { transaction ->
+            getAllFutureTransactionsThisCycle().map { transaction ->
                 val category = categories.find { it.id == transaction.categoryId }
                 TransactionDetails(
                     id = transaction.id,
@@ -140,12 +140,18 @@ class TransactionViewModel(
     }
 
     private fun calcFutureMonthlyBalance(): Double {
-        return getAllTransActionTillEndOfCycle()
-            .filter { it.date.isAfter(LocalDate.now().withDayOfMonth(1).minusDays(1)) }
-            .sumOf { it.amount }
+        return if(LocalDate.now().dayOfMonth < cycleStart) {
+            getAllTransActionTillEndOfCycle()
+                .filter { it.date.isAfter(LocalDate.now().withDayOfMonth(cycleStart).minusDays(1).minusMonths(1)) }
+                .sumOf { it.amount }
+        } else {
+            getAllTransActionTillEndOfCycle()
+                .filter { it.date.isAfter(LocalDate.now().withDayOfMonth(cycleStart).minusDays(1)) }
+                .sumOf { it.amount }
+        }
     }
 
-    private fun getAllFutureTransactionsThisMonth(): List<Transaction> {
+    private fun getAllFutureTransactionsThisCycle(): List<Transaction> {
         return getAllTransActionTillEndOfCycle()
             .filter { it.date.isAfter(LocalDate.now()) }
     }

@@ -28,7 +28,7 @@ import java.time.chrono.ChronoLocalDate
 
 class BudgetsViewModel(
     private val budgetRepository: BudgetRepository,
-    private val transactionRepository: TransactionRepository,
+    transactionRepository: TransactionRepository,
     private val categoryRepository: CategoryRepository,
 ): ViewModel() {
 
