@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.IconButton
 import androidx.compose.material.TextField
 import androidx.compose.material.icons.Icons
@@ -22,10 +23,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.github.skydoves.colorpicker.compose.AlphaTile
 import com.github.skydoves.colorpicker.compose.ColorEnvelope
 import com.github.skydoves.colorpicker.compose.HsvColorPicker
 import com.github.skydoves.colorpicker.compose.rememberColorPickerController
@@ -37,7 +40,6 @@ import de.christcoding.budgetfellow.viewmodels.CategoriesViewModel
 fun EditCategoryScreen(navController: NavHostController, categoryId: Long, padding: PaddingValues) {
     val vm: CategoriesViewModel = viewModel(factory = AppViewModelProvider.Factory)
     val category = vm.getCategory(categoryId).collectAsState(initial = null).value
-    var categoryName by remember { mutableStateOf(category?.name ?: "") }
     val controller = rememberColorPickerController()
 
     Scaffold(
@@ -59,16 +61,21 @@ fun EditCategoryScreen(navController: NavHostController, categoryId: Long, paddi
         Column (modifier = Modifier
             .padding(it)
             .padding(bottom = padding.calculateBottomPadding())){
-            TextField(value = categoryName , onValueChange = { categoryName = it }, label = { Text("Category Name") })
+            TextField(value = category?.name ?: "" , onValueChange = { category.name = it }, label = { Text("Category Name") })
+            AlphaTile(modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp)
+                .clip(shape = RoundedCornerShape(6.dp)),
+                controller = controller)
             HsvColorPicker(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(450.dp)
                     .padding(10.dp),
-                initialColor = Color(category?.color ?: 0),
+                initialColor = categoryColor,
                 controller = controller,
                 onColorChanged = { colorEnvelope: ColorEnvelope ->
-                    // do something
+                    categoryColor = colorEnvelope.color
                 }
             )
             Button(onClick = {
