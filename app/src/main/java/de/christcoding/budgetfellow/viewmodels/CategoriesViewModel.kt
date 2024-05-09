@@ -7,10 +7,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import de.christcoding.budgetfellow.data.CategoryRepository
 import de.christcoding.budgetfellow.data.models.Category
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 class CategoriesViewModel(
     private val categoryRepository: CategoryRepository
@@ -26,11 +26,18 @@ class CategoriesViewModel(
             )
     }
 
-    fun saveCategory(categoryId: Long, categoryName: String) {
-
+    fun saveCategory(categoryId: Long, categoryName: String, categoryColor: Int) {
+        viewModelScope.launch {
+            if(categoryId == 0L) {
+                categoryRepository.addACategory(Category(name = categoryName, color = categoryColor))
+            } else {
+                categoryRepository.updateACategory(Category(id = categoryId, name = categoryName, color = categoryColor))
+            }
+        }
     }
 
     fun updateCategoryState(category: Category) {
+        if(catState is CategoryUiState.Success && (catState as CategoryUiState.Success).category == category) return
         catState = CategoryUiState.Success(category)
     }
 

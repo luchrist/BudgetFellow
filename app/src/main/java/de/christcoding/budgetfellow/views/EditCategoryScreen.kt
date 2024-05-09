@@ -22,10 +22,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.github.skydoves.colorpicker.compose.AlphaTile
@@ -56,7 +61,7 @@ fun EditCategoryScreen(navController: NavHostController, categoryId: Long, paddi
         is CategoryUiState.Success -> {
             val cat = catState.category
             var categoryName by remember { mutableStateOf(cat.name) }
-            var categoryColor by remember { mutableStateOf(Color(cat.color)) }
+            var categoryColor by remember { mutableStateOf(cat.color) }
 
             Scaffold(
                 topBar = {
@@ -77,7 +82,9 @@ fun EditCategoryScreen(navController: NavHostController, categoryId: Long, paddi
                 Column (modifier = Modifier
                     .padding(it)
                     .padding(bottom = padding.calculateBottomPadding())){
-                    TextField(value = category?.name ?: "" , onValueChange = { categoryName = it }, label = { Text("Category Name") })
+                    TextField(value = categoryName , onValueChange = { categoryName = it },
+                        modifier = Modifier.align(Alignment.CenterHorizontally).padding(8.dp),
+                        textStyle = TextStyle(fontSize = 20.sp, textAlign = TextAlign.Center))
                     AlphaTile(modifier = Modifier
                         .fillMaxWidth()
                         .height(50.dp)
@@ -88,14 +95,14 @@ fun EditCategoryScreen(navController: NavHostController, categoryId: Long, paddi
                             .fillMaxWidth()
                             .height(450.dp)
                             .padding(10.dp),
-                        initialColor = categoryColor,
+                        initialColor = Color(categoryColor),
                         controller = controller,
                         onColorChanged = { colorEnvelope: ColorEnvelope ->
-                            categoryColor = colorEnvelope.color
+                            categoryColor = colorEnvelope.color.toArgb()
                         }
                     )
-                    Button(onClick = {
-                        vm.saveCategory(categoryId, categoryName)
+                    Button(modifier = Modifier.align(Alignment.CenterHorizontally), onClick = {
+                        vm.saveCategory(categoryId, categoryName, categoryColor)
                         if(categoryId != 0L) {
                             navController.popBackStack()
                         }
@@ -107,6 +114,4 @@ fun EditCategoryScreen(navController: NavHostController, categoryId: Long, paddi
 
         }
     }
-
-
 }
