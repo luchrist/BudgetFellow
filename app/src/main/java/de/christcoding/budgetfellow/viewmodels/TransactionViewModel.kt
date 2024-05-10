@@ -10,6 +10,8 @@ import de.christcoding.budgetfellow.data.TransactionRepository
 import de.christcoding.budgetfellow.data.models.Category
 import de.christcoding.budgetfellow.data.models.Transaction
 import de.christcoding.budgetfellow.data.models.TransactionDetails
+import de.christcoding.budgetfellow.data.models.copyWithoutId
+import de.christcoding.budgetfellow.data.models.onlyOne
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -82,8 +84,11 @@ class TransactionViewModel(
                         "Month" -> date = date.plusMonths(transaction.recurringInterval.toLong())
                         "Year" -> date = date.plusYears(transaction.recurringInterval.toLong())
                     }
-                    if (date.isBefore(day.plusDays(1)))
-                        allTransactions.add(transaction.copy(date = date))
+                    if (date.isBefore(day.plusDays(1)) && transactions.filter { it.recurringId == transaction.recurringId }.none { it.date == date } && allTransactions.filter { it.recurringId == transaction.recurringId }.none { it.date == date }) {
+                            viewModelScope.launch {
+                                transactionRepository.addATransaction(transaction.copyWithoutId(date = date))
+                            }
+                        }
                 }
             }
         }
@@ -119,7 +124,8 @@ class TransactionViewModel(
                 date = transaction.date,
                 recurring = transaction.recurring,
                 recurringIntervalUnit = transaction.recurringIntervalUnit,
-                recurringInterval = transaction.recurringInterval
+                recurringInterval = transaction.recurringInterval,
+                recurringId = transaction.recurringId
             )
         },
             getAllFutureTransactionsThisCycle().map { transaction ->
@@ -133,7 +139,8 @@ class TransactionViewModel(
                     date = transaction.date,
                     recurring = transaction.recurring,
                     recurringIntervalUnit = transaction.recurringIntervalUnit,
-                    recurringInterval = transaction.recurringInterval
+                    recurringInterval = transaction.recurringInterval,
+                    recurringId = transaction.recurringId
                 )
             },
             calcMonthlyBalance(), calcMonthlyIncome(), calcFutureMonthlyBalance())
@@ -220,7 +227,8 @@ class TransactionViewModel(
                 date = transaction.date,
                 recurring = transaction.recurring,
                 recurringIntervalUnit = transaction.recurringIntervalUnit,
-                recurringInterval = transaction.recurringInterval
+                recurringInterval = transaction.recurringInterval,
+                recurringId = transaction.recurringId
             )
         }
     }

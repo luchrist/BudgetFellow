@@ -33,7 +33,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.github.skydoves.colorpicker.compose.AlphaSlider
 import com.github.skydoves.colorpicker.compose.AlphaTile
+import com.github.skydoves.colorpicker.compose.BrightnessSlider
 import com.github.skydoves.colorpicker.compose.ColorEnvelope
 import com.github.skydoves.colorpicker.compose.HsvColorPicker
 import com.github.skydoves.colorpicker.compose.rememberColorPickerController
@@ -48,6 +50,9 @@ fun EditCategoryScreen(navController: NavHostController, categoryId: Long, paddi
     val vm: CategoriesViewModel = viewModel(factory = AppViewModelProvider.Factory)
     val catState = vm.catState
     val category: Category? = vm.getCategory(categoryId).collectAsState().value
+    if(categoryId == 0L) {
+        vm.updateCategoryState(Category(color =Color.Blue.toArgb()))
+    }
     if(category != null) {
         vm.updateCategoryState(category)
     }
@@ -93,13 +98,27 @@ fun EditCategoryScreen(navController: NavHostController, categoryId: Long, paddi
                     HsvColorPicker(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(450.dp)
-                            .padding(10.dp),
-                        initialColor = Color(categoryColor),
+                            .height(350.dp)
+                            .padding(5.dp),
+                        initialColor = Color(cat.color),
                         controller = controller,
                         onColorChanged = { colorEnvelope: ColorEnvelope ->
                             categoryColor = colorEnvelope.color.toArgb()
                         }
+                    )
+                    AlphaSlider(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(5.dp)
+                            .height(35.dp),
+                        controller = controller,
+                    )
+                    BrightnessSlider(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(10.dp)
+                            .height(35.dp),
+                        controller = controller,
                     )
                     Button(modifier = Modifier.align(Alignment.CenterHorizontally), onClick = {
                         vm.saveCategory(categoryId, categoryName, categoryColor)

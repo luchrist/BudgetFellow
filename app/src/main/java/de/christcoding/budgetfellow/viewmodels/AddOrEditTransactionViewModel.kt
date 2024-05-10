@@ -24,11 +24,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.util.UUID
 import kotlin.random.Random
 
 open class AddOrEditTransactionViewModel(
@@ -56,6 +58,13 @@ open class AddOrEditTransactionViewModel(
     var rowsUpdated by mutableStateOf(-1)
     var currency by mutableStateOf("€")
 
+    val transactionsFlow: StateFlow<List<Transaction>> = transactionRepository.getAllTransactions()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = listOf()
+        )
+
     var categories: StateFlow<List<Category>> = categoryRepository.getAllCategory()
         .stateIn(
             scope = viewModelScope,
@@ -70,6 +79,12 @@ open class AddOrEditTransactionViewModel(
         )
     var selectedCategoryName by mutableStateOf("")
     var selectedCategory by mutableStateOf(Category( name = "House", color = Color(0f, 0.016f, 0.98f, 0.5f).toArgb(), expense = true))
+    var transactions by mutableStateOf(listOf<Transaction>())
+    init {
+        viewModelScope.launch {
+            transactionsFlow.collectLatest { transactions = it }
+        }
+    }
 
     fun onEvent(event: AddTransactionEvent) {
         when (event) {
@@ -87,6 +102,21 @@ open class AddOrEditTransactionViewModel(
 
             is AddTransactionEvent.OnAddClicked -> {
                 submitData()
+            }
+            is AddTransactionEvent.OnDeleteClicked -> {
+                viewModelScope.launch {
+                    if (_editableTransaction != null)
+                        transactionRepository.deleteATransaction(Transaction(id = _editableTransaction!!.id, name = _editableTransaction!!.name, description = _editableTransaction!!.description, categoryId = _editableTransaction!!.category.id, amount = _editableTransaction!!.amount, date = _editableTransaction!!.date, recurring = _editableTransaction!!.recurring, recurringInterval = _editableTransaction!!.recurringInterval, recurringIntervalUnit = _editableTransaction!!.recurringIntervalUnit, recurringId = _editableTransaction!!.recurringId))
+                }
+            }
+            is AddTransactionEvent.OnDeleteRecurringClicked -> {
+                    for (transaction in transactions) {
+                        if (transaction.recurringId.equals(_editableTransaction!!.recurringId)) {
+                            viewModelScope.launch {
+                                transactionRepository.deleteATransaction(transaction)
+                        }
+                    }
+                }
             }
         }
     }
@@ -184,7 +214,8 @@ open class AddOrEditTransactionViewModel(
 
     private fun addTransaction(transaction: Transaction) {
         viewModelScope.launch(Dispatchers.IO) {
-            id = transactionRepository.addATransaction(transaction)
+            val recurringId = UUID.randomUUID().toString()
+            id = transactionRepository.addATransaction(transaction.copy(recurringId = recurringId))
             if (id > -1L) resetForm()
         }
     }

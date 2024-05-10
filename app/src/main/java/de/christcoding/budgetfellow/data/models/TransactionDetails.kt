@@ -14,6 +14,7 @@ data class TransactionDetails(
     val recurring: Boolean=false,
     val recurringIntervalUnit: String="",
     val recurringInterval: Int=0,
+    val recurringId: String = ""
 )
 
 fun List<TransactionDetails>.groupedByDay(): Map<LocalDate, List<TransactionDetails>> {

@@ -8,7 +8,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.IconButton
+import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
@@ -20,6 +22,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
@@ -41,14 +44,20 @@ fun EditCategoriesScreen(navController: NavHostController, padding: PaddingValue
 
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(title = { Text(text = "Categories") }, navigationIcon = {
-                IconButton(onClick = { navController.popBackStack() }) {
-                    Icon(Icons.Default.KeyboardArrowLeft, contentDescription = null)
+            Row (Modifier.fillMaxWidth().padding(8.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                IconButton(onClick = {navController.navigate(Screen.Home.route)}) {
+                    Icon(Icons.Filled.KeyboardArrowLeft, contentDescription = "Back")
                 }
-            })
+                Text(text = "Categories", fontSize = 24.sp, textAlign = TextAlign.Center)
+                IconButton(onClick = {navController.navigate("${Screen.EditCategory.route}/0")}) {
+                    Icon(Icons.Filled.AddCircle, contentDescription = "Add Category")
+                }
+            }
         }
     ) {
-        LazyColumn(modifier = Modifier.padding(it).padding(bottom = padding.calculateBottomPadding())) {
+        LazyColumn(modifier = Modifier
+            .padding(it)
+            .padding(bottom = padding.calculateBottomPadding())) {
             items(categories) { category ->
                 Card(modifier = Modifier
                     .fillMaxWidth()

@@ -24,7 +24,26 @@ data class Transaction(
     val recurring: Boolean=false,
     val recurringIntervalUnit: String="",
     val recurringInterval: Int=0,
+    val recurringId: String = ""
 )
+
+fun Transaction.copyWithoutId(date: LocalDate): Transaction {
+    return Transaction(
+        name = this.name,
+        description = this.description,
+        categoryId = this.categoryId,
+        amount = this.amount,
+        date = date,
+        recurring = this.recurring,
+        recurringIntervalUnit = this.recurringIntervalUnit,
+        recurringInterval = this.recurringInterval,
+        recurringId = this.recurringId
+    )
+}
+
+fun List<Transaction>.onlyOne(recurringId: String): Boolean {
+    return this.filter { it.recurringId == recurringId }.size <= 1
+}
 
 fun List<Transaction>.groupedByDay(): Map<LocalDate, List<Transaction>> {
     return this.groupBy { it.date }.toSortedMap(compareByDescending { it })
