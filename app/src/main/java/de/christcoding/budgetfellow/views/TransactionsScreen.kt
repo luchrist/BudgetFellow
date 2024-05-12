@@ -14,6 +14,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -44,7 +45,9 @@ fun TransactionsScreen(navController: NavHostController, padding: PaddingValues)
 
     val transactionsState = vm.transactionsState
     if (vm.categories.isNotEmpty()) {
-        vm.updateTransactionState()
+        LaunchedEffect(key1 = ctx){
+            vm.updateTransactionState()
+        }
     }
     Scaffold (
         modifier = Modifier.padding(padding),
@@ -61,11 +64,17 @@ fun TransactionsScreen(navController: NavHostController, padding: PaddingValues)
 
             is TransactionsUiState.Success -> {
                 Column(modifier = Modifier.padding(it)) {
-                    Column(modifier = Modifier.fillMaxWidth().padding(8.dp).background(MaterialTheme.colorScheme.surfaceVariant)) {
+                    Column(modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                        .background(MaterialTheme.colorScheme.surfaceVariant)) {
                         Text(text = "Cycle Balance", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.padding(top = 8.dp))
                         Text(text = "${transactionsState.monthlyBalance} €", style = MaterialTheme.typography.headlineLarge, modifier = Modifier.padding(bottom = 8.dp))
                     }
-                    Column(modifier = Modifier.fillMaxWidth().padding(8.dp).background(MaterialTheme.colorScheme.surfaceVariant)) {
+                    Column(modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                        .background(MaterialTheme.colorScheme.surfaceVariant)) {
                         Text(text = "Cycle Planned Balance", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.padding(top = 8.dp))
                         Text(text = "${transactionsState.futureMonthlyBalance} €", style = MaterialTheme.typography.headlineLarge)
 //                        Button(onClick = { /*TODO*/ },modifier = Modifier.padding(bottom = 8.dp) ,contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp) ,enabled = false, colors = ButtonColors(disabledContainerColor = Positive, disabledContentColor = Color.White, containerColor = Positive, contentColor = Color.White)) {

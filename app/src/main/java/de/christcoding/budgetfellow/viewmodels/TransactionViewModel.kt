@@ -11,7 +11,6 @@ import de.christcoding.budgetfellow.data.models.Category
 import de.christcoding.budgetfellow.data.models.Transaction
 import de.christcoding.budgetfellow.data.models.TransactionDetails
 import de.christcoding.budgetfellow.data.models.copyWithoutId
-import de.christcoding.budgetfellow.data.models.onlyOne
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -44,6 +43,7 @@ class TransactionViewModel(
     var categories by mutableStateOf(listOf<Category>())
     var transactions by mutableStateOf(listOf<Transaction>())
     var currentMonth by mutableStateOf(convertToCamelCase(LocalDate.now().month))
+    var allTransactionsTillEndOfCycle by mutableStateOf(listOf<Transaction>())
 
     private fun convertToCamelCase(month: Month?): String {
         when(month)
@@ -65,10 +65,6 @@ class TransactionViewModel(
         }
     }
 
-    private fun getAllTransaction(): List<Transaction> {
-        return getAllTransactionTillDay(LocalDate.now())
-    }
-
     private fun getAllTransactionTillDay(day: LocalDate): List<Transaction> {
         val allTransactions: MutableList<Transaction> = mutableListOf()
         for(transaction in transactions) {
@@ -85,10 +81,11 @@ class TransactionViewModel(
                         "Year" -> date = date.plusYears(transaction.recurringInterval.toLong())
                     }
                     if (date.isBefore(day.plusDays(1)) && transactions.filter { it.recurringId == transaction.recurringId }.none { it.date == date } && allTransactions.filter { it.recurringId == transaction.recurringId }.none { it.date == date }) {
-                            viewModelScope.launch {
-                                transactionRepository.addATransaction(transaction.copyWithoutId(date = date))
-                            }
+                        allTransactions.add(transaction.copyWithoutId(date = date))
+                        viewModelScope.launch {
+                            transactionRepository.addATransaction(transaction.copyWithoutId(date = date))
                         }
+                    }
                 }
             }
         }
@@ -112,23 +109,11 @@ class TransactionViewModel(
     fun updateTransactionState() {
         if(categories.isEmpty()) {
             transactionsState = TransactionsUiState.Loading
-        }
-        transactionsState = TransactionsUiState.Success(getAllTransaction().map { transaction ->
-            val category = categories.find { it.id == transaction.categoryId }
-            TransactionDetails(
-                id = transaction.id,
-                name = transaction.name,
-                description = transaction.description,
-                category = category ?: Category(name = "Uncategorized", color = 0, expense = true),
-                amount = transaction.amount,
-                date = transaction.date,
-                recurring = transaction.recurring,
-                recurringIntervalUnit = transaction.recurringIntervalUnit,
-                recurringInterval = transaction.recurringInterval,
-                recurringId = transaction.recurringId
-            )
-        },
-            getAllFutureTransactionsThisCycle().map { transaction ->
+        } else {
+            allTransactionsTillEndOfCycle = getAllTransActionTillEndOfCycle()
+            val allTransactionsTillToday = allTransactionsTillEndOfCycle.filter { it.date.isBefore(LocalDate.now().plusDays(1)) }
+            transactionsState = TransactionsUiState.Success(
+                allTransactionsTillToday.map { transaction ->
                 val category = categories.find { it.id == transaction.categoryId }
                 TransactionDetails(
                     id = transaction.id,
@@ -143,23 +128,39 @@ class TransactionViewModel(
                     recurringId = transaction.recurringId
                 )
             },
-            calcMonthlyBalance(), calcMonthlyIncome(), calcFutureMonthlyBalance())
+                getAllFutureTransactionsThisCycle().map { transaction ->
+                    val category = categories.find { it.id == transaction.categoryId }
+                    TransactionDetails(
+                        id = transaction.id,
+                        name = transaction.name,
+                        description = transaction.description,
+                        category = category ?: Category(name = "Uncategorized", color = 0, expense = true),
+                        amount = transaction.amount,
+                        date = transaction.date,
+                        recurring = transaction.recurring,
+                        recurringIntervalUnit = transaction.recurringIntervalUnit,
+                        recurringInterval = transaction.recurringInterval,
+                        recurringId = transaction.recurringId
+                    )
+                },
+                calcMonthlyBalance(allTransactionsTillToday), calcMonthlyIncome(allTransactionsTillToday), calcFutureMonthlyBalance())
+        }
     }
 
     private fun calcFutureMonthlyBalance(): Double {
         return if(LocalDate.now().dayOfMonth < cycleStart) {
-            getAllTransActionTillEndOfCycle()
+            allTransactionsTillEndOfCycle
                 .filter { it.date.isAfter(LocalDate.now().withDayOfMonth(cycleStart).minusDays(1).minusMonths(1)) }
                 .sumOf { it.amount }
         } else {
-            getAllTransActionTillEndOfCycle()
+            allTransactionsTillEndOfCycle
                 .filter { it.date.isAfter(LocalDate.now().withDayOfMonth(cycleStart).minusDays(1)) }
                 .sumOf { it.amount }
         }
     }
 
     private fun getAllFutureTransactionsThisCycle(): List<Transaction> {
-        return getAllTransActionTillEndOfCycle()
+        return allTransactionsTillEndOfCycle
             .filter { it.date.isAfter(LocalDate.now()) }
     }
 
@@ -177,33 +178,33 @@ class TransactionViewModel(
     }
 
     private fun updateCycleStart() {
-        if(smartCycle) {
+        if(smartCycle && transactions.any { it.recurring }) {
             cycleStart = transactions.filter { it.recurring }.maxBy { it.amount }.date.dayOfMonth
         }
     }
 
-    private fun calcMonthlyIncome(): Double {
+    private fun calcMonthlyIncome(allTransactions: List<Transaction>): Double {
         updateCycleStart()
         if(LocalDate.now().dayOfMonth < cycleStart) {
-            return getAllTransaction()
+            return allTransactions
                 .filter { it.date.isAfter(LocalDate.now().withDayOfMonth(cycleStart).minusDays(1).minusMonths(1)) }
                 .filter { it.amount > 0 }
                 .sumOf { it.amount }
         }
-        return getAllTransaction()
+        return allTransactions
             .filter { it.date.isAfter(LocalDate.now().withDayOfMonth(cycleStart).minusDays(1)) }
             .filter { it.amount > 0 }
             .sumOf { it.amount }
     }
 
-    private fun calcMonthlyBalance(): Double {
+    private fun calcMonthlyBalance(allTransactions: List<Transaction>): Double {
         if(LocalDate.now().dayOfMonth < cycleStart) {
-            return getAllTransaction()
+            return allTransactions
                 .filter { it.date.isAfter(LocalDate.now().withDayOfMonth(cycleStart).minusDays(1).minusMonths(1)) }
                 .filter { it.date.isBefore(LocalDate.now().plusDays(1)) }
                 .sumOf { it.amount }
         }
-        return getAllTransaction()
+        return allTransactions
             .filter { it.date.isAfter(LocalDate.now().withDayOfMonth(cycleStart).minusDays(1)) }
             .filter { it.date.isBefore(LocalDate.now().plusDays(1)) }
             .sumOf { it.amount }
