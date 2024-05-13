@@ -4,6 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
+import de.christcoding.budgetfellow.TransactionMode
 import de.christcoding.budgetfellow.TransactionState
 import de.christcoding.budgetfellow.data.CategoryRepository
 import de.christcoding.budgetfellow.data.TransactionRepository
@@ -42,6 +43,7 @@ class TransactionViewModel(
         )
     var categories by mutableStateOf(listOf<Category>())
     var transactions by mutableStateOf(listOf<Transaction>())
+    var transactionMode: TransactionMode? by mutableStateOf(null)
     var currentMonth by mutableStateOf(convertToCamelCase(LocalDate.now().month))
     var allTransactionsTillEndOfCycle by mutableStateOf(listOf<Transaction>())
 
@@ -80,7 +82,9 @@ class TransactionViewModel(
                         "Month" -> date = date.plusMonths(transaction.recurringInterval.toLong())
                         "Year" -> date = date.plusYears(transaction.recurringInterval.toLong())
                     }
-                    if (date.isBefore(day.plusDays(1)) && transactions.filter { it.recurringId == transaction.recurringId }.none { it.date == date } && allTransactions.filter { it.recurringId == transaction.recurringId }.none { it.date == date }) {
+                    if (date.isBefore(day.plusDays(1))
+                        && transactions.filter { it.recurringId == transaction.recurringId }.none { it.date == date }
+                        && transactions.filter { it.recurringId == transaction.recurringId }.none { it.date.isAfter(date)  }) {
                         allTransactions.add(transaction.copyWithoutId(date = date))
                         viewModelScope.launch {
                             transactionRepository.addATransaction(transaction.copyWithoutId(date = date))
@@ -231,6 +235,7 @@ class TransactionViewModel(
                 recurringInterval = transaction.recurringInterval,
                 recurringId = transaction.recurringId
             )
+            transactionMode = if(editTransactionState.category.expense) TransactionMode.ExpenseEdit else TransactionMode.IncomeEdit
         }
     }
 

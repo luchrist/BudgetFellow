@@ -52,6 +52,7 @@ open class AddOrEditTransactionViewModel(
     var stepDesc by mutableStateOf("Let's start by adding your first fix income.")
     var transactionName by mutableStateOf("")
     var transactionId = 0L
+    var recurringId = ""
     var transactionDescription by mutableStateOf("")
     var amount by mutableStateOf("")
     var id by mutableStateOf(-2L)
@@ -111,7 +112,7 @@ open class AddOrEditTransactionViewModel(
             }
             is AddTransactionEvent.OnDeleteRecurringClicked -> {
                     for (transaction in transactions) {
-                        if (transaction.recurringId.equals(_editableTransaction!!.recurringId)) {
+                        if (transaction.recurringId.equals(_editableTransaction!!.recurringId) && transaction.date.isAfter(_editableTransaction!!.date.minusDays(1))) {
                             viewModelScope.launch {
                                 transactionRepository.deleteATransaction(transaction)
                         }
@@ -163,7 +164,7 @@ open class AddOrEditTransactionViewModel(
     }
 
     private fun getIncomeTransaction(): Transaction {
-        return getTransaction { it.toDouble() }
+        return getTransaction { it.toDouble()}
     }
 
     private fun getExpenseTransaction(): Transaction {
@@ -204,10 +205,11 @@ open class AddOrEditTransactionViewModel(
                 date = datePicked,
                 recurring = recurring,
                 recurringInterval = recurringPeriod.toInt(),
-                recurringIntervalUnit = periodUnit
+                recurringIntervalUnit = periodUnit,
+                recurringId = UUID.randomUUID().toString()
             )
         if (transactionId > 0) {
-            ta = ta.copy(id = transactionId)
+            ta = ta.copy(id = transactionId, recurringId = recurringId)
         }
         return ta
     }
@@ -267,6 +269,7 @@ open class AddOrEditTransactionViewModel(
             }
             _editableTransaction = trans
             transactionId = trans.id
+            recurringId = trans.recurringId
             transactionName = trans.name
             transactionDescription = trans.description
             amount = trans.amount.toString()
