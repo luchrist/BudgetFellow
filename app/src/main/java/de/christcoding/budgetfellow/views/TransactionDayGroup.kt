@@ -55,7 +55,9 @@ fun TransactionDayGroup(date: LocalDate, transactions: MutableList<TransactionDe
                         description = transaction.description,
                         recurringIntervalUnit = transaction.recurringIntervalUnit,
                         recurringInterval = transaction.recurringInterval,
-                        recurring = transaction.recurring
+                        recurring = transaction.recurring,
+                        recurringId = transaction.recurringId,
+                        recurringDeleted = transaction.recurringDeleted
                     ))
                 }) {
                     TransactionItem(transaction = transaction, navController = navController)

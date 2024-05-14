@@ -53,6 +53,7 @@ open class AddOrEditTransactionViewModel(
     var transactionName by mutableStateOf("")
     var transactionId = 0L
     var recurringId = ""
+    var recurringDeleted = false
     var transactionDescription by mutableStateOf("")
     var amount by mutableStateOf("")
     var id by mutableStateOf(-2L)
@@ -104,25 +105,48 @@ open class AddOrEditTransactionViewModel(
             is AddTransactionEvent.OnAddClicked -> {
                 submitData()
             }
+            is AddTransactionEvent.OnSaveAllClicked -> {
+                submitDataForAll()
+            }
             is AddTransactionEvent.OnDeleteClicked -> {
                 viewModelScope.launch {
                     if (_editableTransaction != null)
-                        transactionRepository.deleteATransaction(Transaction(id = _editableTransaction!!.id, name = _editableTransaction!!.name, description = _editableTransaction!!.description, categoryId = _editableTransaction!!.category.id, amount = _editableTransaction!!.amount, date = _editableTransaction!!.date, recurring = _editableTransaction!!.recurring, recurringInterval = _editableTransaction!!.recurringInterval, recurringIntervalUnit = _editableTransaction!!.recurringIntervalUnit, recurringId = _editableTransaction!!.recurringId))
+                        transactionRepository.deleteATransaction(Transaction(id = _editableTransaction!!.id, name = _editableTransaction!!.name, description = _editableTransaction!!.description, categoryId = _editableTransaction!!.category.id, amount = _editableTransaction!!.amount, date = _editableTransaction!!.date, recurring = _editableTransaction!!.recurring, recurringInterval = _editableTransaction!!.recurringInterval, recurringIntervalUnit = _editableTransaction!!.recurringIntervalUnit, recurringId = _editableTransaction!!.recurringId, recurringDeleted = _editableTransaction!!.recurringDeleted))
                 }
             }
             is AddTransactionEvent.OnDeleteRecurringClicked -> {
                     for (transaction in transactions) {
-                        if (transaction.recurringId.equals(_editableTransaction!!.recurringId) && transaction.date.isAfter(_editableTransaction!!.date.minusDays(1))) {
-                            viewModelScope.launch {
-                                transactionRepository.deleteATransaction(transaction)
-                        }
+                        if (transaction.recurringId.equals(_editableTransaction!!.recurringId)) {
+                            if (transaction.date.isAfter(_editableTransaction!!.date.minusDays(1))) {
+                                viewModelScope.launch {
+                                    transactionRepository.deleteATransaction(transaction)
+                                }
+                            } else {
+                                viewModelScope.launch {
+                                    transactionRepository.updateATransaction(transaction.copy(recurringDeleted = true))
+                                }
+                            }
                     }
                 }
             }
         }
     }
 
+    private fun submitDataForAll() {
+        if (checkData())
+            viewModelScope.launch {
+                validationEventChannel.send(ValidationEvent.AllSuccess)
+            }
+    }
+
     private fun submitData() {
+        if (checkData())
+            viewModelScope.launch {
+                validationEventChannel.send(ValidationEvent.Success)
+            }
+    }
+
+    private fun checkData(): Boolean {
         val amountResult = validateAmount.execute(state.amount)
         val periodResult =
             if (recurring) validatePeriod.execute(state.period) else ValidationResult(true)
@@ -140,11 +164,9 @@ open class AddOrEditTransactionViewModel(
                 periodError = periodResult.error,
                 catError = catResult.error
             )
-            return
+            return false
         }
-        viewModelScope.launch {
-            validationEventChannel.send(ValidationEvent.Success)
-        }
+        return true
     }
 
     private fun addIncome() {
@@ -159,8 +181,16 @@ open class AddOrEditTransactionViewModel(
         updateTransaction(getIncomeTransaction())
     }
 
+    private fun updateAllIncomes() {
+        updateAllTransactions(getIncomeTransaction())
+    }
+
     private fun updateExpense() {
         updateTransaction(getExpenseTransaction())
+    }
+
+    private fun updateAllExpense() {
+        updateAllTransactions(getExpenseTransaction())
     }
 
     private fun getIncomeTransaction(): Transaction {
@@ -206,7 +236,8 @@ open class AddOrEditTransactionViewModel(
                 recurring = recurring,
                 recurringInterval = recurringPeriod.toInt(),
                 recurringIntervalUnit = periodUnit,
-                recurringId = UUID.randomUUID().toString()
+                recurringId = UUID.randomUUID().toString(),
+                recurringDeleted = recurringDeleted
             )
         if (transactionId > 0) {
             ta = ta.copy(id = transactionId, recurringId = recurringId)
@@ -246,6 +277,33 @@ open class AddOrEditTransactionViewModel(
         }
     }
 
+    private fun updateAllTransactions(transaction: Transaction) {
+        viewModelScope.launch(Dispatchers.IO) {
+            rowsUpdated = transactionRepository.updateATransaction(transaction)
+            if (rowsUpdated > 0) resetForm()
+            if (transaction.recurring) {
+                for (trans in transactions) {
+                    if (trans.recurringId == transaction.recurringId && trans.date.isAfter(
+                            transaction.date
+                        )
+                    ) {
+                        rowsUpdated = transactionRepository.updateATransaction(
+                            trans.copy(
+                                name = transaction.name,
+                                description = transaction.description,
+                                categoryId = transaction.categoryId,
+                                amount = transaction.amount,
+                                date = transaction.date,
+                                recurringInterval = transaction.recurringInterval,
+                                recurringIntervalUnit = transaction.recurringIntervalUnit
+                            )
+                        )
+                    }
+                }
+            }
+        }
+    }
+
     open fun handleSubmit(mode: TransactionMode) {
         when (mode) {
             TransactionMode.IncomeAdd -> {
@@ -261,6 +319,14 @@ open class AddOrEditTransactionViewModel(
         }
     }
 
+    open fun handleAllSubmit(mode: TransactionMode) {
+        when (mode) {
+            TransactionMode.IncomeEdit -> updateAllIncomes()
+            TransactionMode.ExpenseEdit -> updateAllExpense()
+            else -> {}
+        }
+    }
+
     fun setEditableTransaction(transaction: TransactionDetails?, mode: TransactionMode) {
         if ((_editableTransaction == null || isInvalid(_editableTransaction!!)) && transaction != null) {
             var trans = transaction
@@ -270,6 +336,7 @@ open class AddOrEditTransactionViewModel(
             _editableTransaction = trans
             transactionId = trans.id
             recurringId = trans.recurringId
+            recurringDeleted = trans.recurringDeleted
             transactionName = trans.name
             transactionDescription = trans.description
             amount = trans.amount.toString()

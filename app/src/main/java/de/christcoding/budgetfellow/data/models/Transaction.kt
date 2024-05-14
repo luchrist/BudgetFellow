@@ -1,14 +1,9 @@
 package de.christcoding.budgetfellow.data.models
 
-import android.os.Parcelable
-import androidx.compose.ui.graphics.Color
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import androidx.room.TypeConverter
 import androidx.room.TypeConverters
-import de.christcoding.budgetfellow.domain.use_case.ValidateCategory
 import de.christcoding.budgetfellow.utils.DateConverter
-import kotlinx.parcelize.Parcelize
 import java.time.LocalDate
 
 @Entity(tableName="transaction-table")
@@ -24,7 +19,8 @@ data class Transaction(
     val recurring: Boolean=false,
     val recurringIntervalUnit: String="",
     val recurringInterval: Int=0,
-    val recurringId: String = ""
+    val recurringId: String = "",
+    val recurringDeleted: Boolean = false
 )
 
 fun Transaction.copyWithoutId(date: LocalDate): Transaction {
@@ -37,7 +33,8 @@ fun Transaction.copyWithoutId(date: LocalDate): Transaction {
         recurring = this.recurring,
         recurringIntervalUnit = this.recurringIntervalUnit,
         recurringInterval = this.recurringInterval,
-        recurringId = this.recurringId
+        recurringId = this.recurringId,
+        recurringDeleted = this.recurringDeleted
     )
 }
 

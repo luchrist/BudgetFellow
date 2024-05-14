@@ -73,7 +73,7 @@ class TransactionViewModel(
             if (transaction.date.isBefore(day.plusDays(1))) {
                 allTransactions.add(transaction)
             }
-            if(transaction.recurring) {
+            if(transaction.recurring && !transaction.recurringDeleted) {
                 var date = transaction.date
                 while (date.isBefore(day)) {
                     when(transaction.recurringIntervalUnit) {
@@ -129,7 +129,8 @@ class TransactionViewModel(
                     recurring = transaction.recurring,
                     recurringIntervalUnit = transaction.recurringIntervalUnit,
                     recurringInterval = transaction.recurringInterval,
-                    recurringId = transaction.recurringId
+                    recurringId = transaction.recurringId,
+                    recurringDeleted = transaction.recurringDeleted
                 )
             },
                 getAllFutureTransactionsThisCycle().map { transaction ->
@@ -144,7 +145,8 @@ class TransactionViewModel(
                         recurring = transaction.recurring,
                         recurringIntervalUnit = transaction.recurringIntervalUnit,
                         recurringInterval = transaction.recurringInterval,
-                        recurringId = transaction.recurringId
+                        recurringId = transaction.recurringId,
+                        recurringDeleted = transaction.recurringDeleted
                     )
                 },
                 calcMonthlyBalance(allTransactionsTillToday), calcMonthlyIncome(allTransactionsTillToday), calcFutureMonthlyBalance())
@@ -233,7 +235,8 @@ class TransactionViewModel(
                 recurring = transaction.recurring,
                 recurringIntervalUnit = transaction.recurringIntervalUnit,
                 recurringInterval = transaction.recurringInterval,
-                recurringId = transaction.recurringId
+                recurringId = transaction.recurringId,
+                recurringDeleted = transaction.recurringDeleted
             )
             transactionMode = if(editTransactionState.category.expense) TransactionMode.ExpenseEdit else TransactionMode.IncomeEdit
         }
