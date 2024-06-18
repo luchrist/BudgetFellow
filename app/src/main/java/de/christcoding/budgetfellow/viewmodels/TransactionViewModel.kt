@@ -8,6 +8,7 @@ import de.christcoding.budgetfellow.TransactionMode
 import de.christcoding.budgetfellow.TransactionState
 import de.christcoding.budgetfellow.data.CategoryRepository
 import de.christcoding.budgetfellow.data.TransactionRepository
+import de.christcoding.budgetfellow.data.datastore.StoreAppSettings
 import de.christcoding.budgetfellow.data.models.Category
 import de.christcoding.budgetfellow.data.models.Transaction
 import de.christcoding.budgetfellow.data.models.TransactionDetails
@@ -27,6 +28,7 @@ class TransactionViewModel(
 
     var cycleStart by mutableStateOf(1)
     var smartCycle by mutableStateOf(true)
+    var cycleState by mutableStateOf(false)
 
     val categoriesFlow: StateFlow<List<Category>> = categoryRepository.getAllCategory()
         .stateIn(
@@ -89,6 +91,8 @@ class TransactionViewModel(
                         viewModelScope.launch {
                             transactionRepository.addATransaction(transaction.copyWithoutId(date = date))
                         }
+                    } else {
+                        break
                     }
                 }
             }
@@ -248,6 +252,14 @@ class TransactionViewModel(
             period = transaction.recurringInterval.toString(),
             category = transaction.categoryId.toString()
         )
+    }
+
+    fun getCycleData(dataStore: StoreAppSettings) {
+        viewModelScope.launch {
+            dataStore.getCycleStart.collectLatest { cycleStart = it }
+            dataStore.getSmartCycle.collectLatest { smartCycle = it }
+            cycleState = true
+        }
     }
 }
 

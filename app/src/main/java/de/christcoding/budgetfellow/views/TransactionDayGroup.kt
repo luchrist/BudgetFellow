@@ -28,13 +28,7 @@ import java.time.LocalDate
 @Composable
 fun TransactionDayGroup(date: LocalDate, transactions: MutableList<TransactionDetails>, navController: NavHostController) {
     val vm: TransactionViewModel = viewModel(factory = AppViewModelProvider.Factory)
-    val ctx = LocalContext.current
-    val dataStore = StoreAppSettings(ctx)
-    val start by dataStore.getCycleStart.collectAsState(1)
-    val smart by dataStore.getSmartCycle.collectAsState(false)
 
-    vm.cycleStart = start
-    vm.smartCycle = smart
     Card (modifier = Modifier
         .clip(RoundedCornerShape(8.dp))
         .padding(8.dp),

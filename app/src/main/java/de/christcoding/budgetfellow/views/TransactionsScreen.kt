@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -31,24 +32,27 @@ import de.christcoding.budgetfellow.ui.theme.Positive
 import de.christcoding.budgetfellow.viewmodels.AppViewModelProvider
 import de.christcoding.budgetfellow.viewmodels.TransactionViewModel
 import de.christcoding.budgetfellow.viewmodels.TransactionsUiState
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 
 @Composable
 fun TransactionsScreen(navController: NavHostController, padding: PaddingValues) {
     val vm: TransactionViewModel = viewModel(factory = AppViewModelProvider.Factory)
     val ctx = LocalContext.current
+
     val dataStore = StoreAppSettings(ctx)
-    val start by dataStore.getCycleStart.collectAsState(1)
-    val smart by dataStore.getSmartCycle.collectAsState(false)
+    dataStore.getCycleStart.collectAsState(initial = 1).also { vm.cycleStart = it.value }
+    dataStore.getSmartCycle.collectAsState(initial = true).also { vm.cycleState = it.value }
 
-    vm.cycleStart = start
-    vm.smartCycle = smart
-
-    val transactionsState = vm.transactionsState
-    if (vm.categories.isNotEmpty()) {
+    if (vm.categories.isNotEmpty() && vm.cycleState) {
         LaunchedEffect(key1 = ctx){
             vm.updateTransactionState()
         }
     }
+
+    val transactionsState = vm.transactionsState
     Scaffold (
         modifier = Modifier.padding(padding),
         floatingActionButton = {
