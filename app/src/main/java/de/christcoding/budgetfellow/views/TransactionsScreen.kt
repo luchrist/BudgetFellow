@@ -38,7 +38,7 @@ fun TransactionsScreen(navController: NavHostController, padding: PaddingValues)
     val ctx = LocalContext.current
     val dataStore = StoreAppSettings(ctx)
     val start by dataStore.getCycleStart.collectAsState(1)
-    val smart by dataStore.getSmartCycle.collectAsState(false)
+    val smart by dataStore.getSmartCycle.collectAsState(true)
 
     vm.cycleStart = start
     vm.smartCycle = smart
@@ -47,6 +47,7 @@ fun TransactionsScreen(navController: NavHostController, padding: PaddingValues)
     if (vm.categories.isNotEmpty()) {
         LaunchedEffect(key1 = ctx){
             vm.updateTransactionState()
+            dataStore.updateCycleStart(vm.cycleStart)
         }
     }
     Scaffold (

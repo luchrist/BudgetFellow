@@ -15,6 +15,7 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.Checkbox
@@ -113,7 +114,12 @@ fun SettingsScreen(navHostController: NavHostController, padding: PaddingValues)
                 Modifier
                     .fillMaxWidth()
                     .padding(8.dp), horizontalArrangement = Arrangement.SpaceBetween){
-                Text(text = "Smart Cycle")
+                Row {
+                    Text(text = "Smart Cycle", modifier = Modifier.align(Alignment.CenterVertically))
+                    IconButton(onClick = {  }) {
+                        Icon(Icons.Default.Info, contentDescription = "info")
+                    }
+                }
                 Checkbox(checked = smartCycle, onCheckedChange = {
                     scope.launch {
                         dataStore.updateSmartCycle(it)
