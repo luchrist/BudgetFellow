@@ -1,6 +1,5 @@
 package de.christcoding.budgetfellow.viewmodels
 
-import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -15,11 +14,9 @@ import de.christcoding.budgetfellow.data.models.BudgetDetails
 import de.christcoding.budgetfellow.data.models.Category
 import de.christcoding.budgetfellow.data.models.Transaction
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -77,6 +74,7 @@ class BudgetsViewModel(
     var id: Long by mutableStateOf(-2L)
     var rows: Int by mutableStateOf(0)
     var deletedRows: Int by mutableStateOf(0)
+    var cycleStart: Int by mutableStateOf(1)
 
     init {
         viewModelScope.launch {
@@ -142,20 +140,23 @@ class BudgetsViewModel(
 
     private fun calcSavingPerMonth(budgetDetails: List<BudgetDetails>): Double {
         val totalBudget = budgetDetails.sumOf { it.amount }
+        val totalIncome = getTotalIncome()
+        return totalIncome - totalBudget
+    }
+
+    private fun getTotalIncome(): Double {
+        val transactionsOfCurrentMonth: List<Transaction> = getTransactionsOfCurrentCycle()
         var totalIncome = 0.0
-        for (category in incCategories) {
-            for (transaction in transactions) {
-                if (transaction.categoryId == category.id && transaction.date.monthValue == LocalDate.now().monthValue) {
-                    totalIncome += if(transaction.recurring) {
-                        getTransactionValuePerMonth(transaction)
-                    } else {
-                        transaction.amount
-                    }
+        for (transaction in transactionsOfCurrentMonth) {
+            incCategories.find { it.id == transaction.categoryId}.let {
+                if(it != null) {
+                    totalIncome += transaction.amount
                 }
             }
         }
-        return totalIncome - totalBudget
+        return totalIncome
     }
+
     private fun getTransactionValuePerMonth(transaction: Transaction): Double {
         val localDate = LocalDate.now()
         var recurringDate = transaction.date
@@ -200,7 +201,7 @@ class BudgetsViewModel(
     }
 
     private fun getSpentAmountForCategory(categoryId: Long): Double {
-        val transactionsOfCurrentMonth: List<Transaction> = getTransactionsOfCurrentMonth()
+        val transactionsOfCurrentMonth: List<Transaction> = getTransactionsOfCurrentCycle()
         var spent = 0.0
         for (transaction in transactionsOfCurrentMonth) {
             if (transaction.categoryId == categoryId) {
@@ -211,13 +212,7 @@ class BudgetsViewModel(
     }
 
     private fun createBudgetForCategory(category: Category): BudgetDetails? {
-        val transactionsOfCurrentMonth: List<Transaction> = getTransactionsOfCurrentMonth()
-        var newBudgetAmount = 0.0
-        for (transaction in transactionsOfCurrentMonth) {
-            if (transaction.categoryId == category.id) {
-                newBudgetAmount -= transaction.amount
-            }
-        }
+        val newBudgetAmount = getSpentAmountForCategory(category.id)
         if(newBudgetAmount == 0.0) {
             return null
         }
@@ -228,30 +223,22 @@ class BudgetsViewModel(
         return newBudget
     }
 
-    private fun getTransactionsOfCurrentMonth(): List<Transaction> {
+    private fun getTransactionsOfCurrentCycle(): List<Transaction> {
         val localDate = LocalDate.now()
         val transactionsOfCurrentMonth: MutableList<Transaction> = mutableListOf()
-        for (transaction in transactions) {
-            if (transaction.recurring) {
-                var recurringDate = transaction.date
-                if (recurringDate.monthValue == localDate.monthValue) {
+        if(localDate.dayOfMonth >= cycleStart) {
+            for (transaction in transactions) {
+                if (transaction.date.isAfter(localDate.withDayOfMonth(cycleStart).minusDays(1))
+                    && transaction.date.isBefore(localDate.withDayOfMonth(cycleStart).plusMonths(1))) {
                     transactionsOfCurrentMonth.add(transaction)
                 }
-                while (recurringDate.isBefore(getLastDayOfCurrentMonth(localDate))) {
-                    when (transaction.recurringIntervalUnit) {
-                        "Day" -> recurringDate = recurringDate.plusDays(transaction.recurringInterval.toLong())
-                        "Week" -> recurringDate = recurringDate.plusWeeks(transaction.recurringInterval.toLong())
-                        "Month" -> {
-                            recurringDate = recurringDate.plusMonths(transaction.recurringInterval.toLong())
-                        }
-                        "Year" -> recurringDate = recurringDate.plusYears(transaction.recurringInterval.toLong())
-                    }
-                    if (recurringDate.monthValue == localDate.monthValue) {
-                        transactionsOfCurrentMonth.add(transaction)
-                    }
+            }
+        } else {
+            for (transaction in transactions) {
+                if (transaction.date.isAfter(localDate.withDayOfMonth(cycleStart).minusMonths(1).minusDays(1))
+                    && transaction.date.isBefore(localDate.withDayOfMonth(cycleStart))) {
+                    transactionsOfCurrentMonth.add(transaction)
                 }
-            } else if (transaction.date.monthValue == localDate.monthValue) {
-                transactionsOfCurrentMonth.add(transaction)
             }
         }
         return transactionsOfCurrentMonth

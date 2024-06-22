@@ -4,7 +4,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -16,43 +15,46 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import de.christcoding.budgetfellow.BudgetState
 import de.christcoding.budgetfellow.R
+import de.christcoding.budgetfellow.data.datastore.StoreAppSettings
 import de.christcoding.budgetfellow.navigation.Screen
 import de.christcoding.budgetfellow.ui.components.BudgetCard
-import de.christcoding.budgetfellow.ui.components.SubTitle
-import de.christcoding.budgetfellow.ui.components.Title
-import de.christcoding.budgetfellow.ui.theme.BackgroundElevated
-import de.christcoding.budgetfellow.ui.theme.Medium
-import de.christcoding.budgetfellow.ui.theme.Positive
 import de.christcoding.budgetfellow.viewmodels.AppViewModelProvider
 import de.christcoding.budgetfellow.viewmodels.ApplicationViewModel
 import de.christcoding.budgetfellow.viewmodels.BudgetUiState
 import de.christcoding.budgetfellow.viewmodels.BudgetsViewModel
-import de.christcoding.budgetfellow.viewmodels.TransactionsUiState
 
 @Composable
 fun BudgetsScreen(navController: NavHostController, padding: PaddingValues) {
     val appViewModel: ApplicationViewModel = viewModel(factory = AppViewModelProvider.Factory)
     val vm: BudgetsViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    val ctx = LocalContext.current
     val budgetUiState = vm.budgetState
+    val dataStore = StoreAppSettings(ctx)
+    val start by dataStore.getCycleStart.collectAsState(1)
+    vm.cycleStart = start
     if (vm.categories.isNotEmpty() && vm.transactions.isNotEmpty()) {
-        vm.updateBudgetState()
+        LaunchedEffect(key1 = ctx) {
+            vm.updateBudgetState()
+        }
     }
     when (budgetUiState) {
         is BudgetUiState.Loading -> {
