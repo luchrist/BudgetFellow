@@ -24,6 +24,7 @@ import de.christcoding.budgetfellow.views.HomeScreen
 import de.christcoding.budgetfellow.views.OutcomesIntroScreen
 import de.christcoding.budgetfellow.views.SettingsScreen
 import de.christcoding.budgetfellow.views.SetupCompleteScreen
+import de.christcoding.budgetfellow.views.TransactionsIntroScreen
 import de.christcoding.budgetfellow.views.TransactionsScreen
 
 @Composable
@@ -42,6 +43,9 @@ fun Navigation(context: Context,
         }
         composable(Screen.SetBudgets.route) {
             BudgetsIntroScreen(navController)
+        }
+        composable(Screen.TransactionsIntro.route) {
+            TransactionsIntroScreen(navController)
         }
         composable(Screen.CreateBudget.route) {
             CreateBudgetScreen(navController = navController, padding)

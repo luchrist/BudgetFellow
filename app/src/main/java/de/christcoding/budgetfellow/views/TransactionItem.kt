@@ -1,5 +1,6 @@
 package de.christcoding.budgetfellow.views
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -14,9 +15,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import de.christcoding.budgetfellow.R
 import de.christcoding.budgetfellow.data.models.TransactionDetails
 import de.christcoding.budgetfellow.navigation.Screen
 import de.christcoding.budgetfellow.ui.theme.CardBackground
@@ -26,15 +30,27 @@ import de.christcoding.budgetfellow.viewmodels.ApplicationViewModel
 import java.text.DecimalFormat
 
 @Composable
-fun TransactionItem(transaction: TransactionDetails, navController: NavHostController) {
-
+fun TransactionItem(transaction: TransactionDetails, navController: NavHostController, inIntro: Boolean = false) {
+    val ctx = LocalContext.current
     val appViewModel: ApplicationViewModel = viewModel(factory = AppViewModelProvider.Factory)
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.surfaceBright)
             .padding(8.dp)
-            .clickable(onClick = {navController.navigate("${Screen.BottomNavigationScreens.TransactionDetail.route}/${transaction.id}")})
+            .clickable(onClick = {
+                if (inIntro) {
+                    Toast
+                        .makeText(
+                            ctx,
+                            ctx.getString(R.string.please_first_continue_with_the_intro),
+                            Toast.LENGTH_SHORT
+                        )
+                        .show()
+                } else {
+                    navController.navigate("${Screen.BottomNavigationScreens.TransactionDetail.route}/${transaction.id}")
+                }
+            })
     ) {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text(text = transaction.name, style = MaterialTheme.typography.headlineMedium)

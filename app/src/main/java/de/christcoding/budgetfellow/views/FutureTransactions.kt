@@ -30,7 +30,7 @@ import androidx.navigation.NavHostController
 import de.christcoding.budgetfellow.data.models.TransactionDetails
 
 @Composable
-fun FutureTransactions(transactions: List<TransactionDetails>, navController: NavHostController) {
+fun FutureTransactions(transactions: List<TransactionDetails>, navController: NavHostController, inIntro: Boolean = false) {
     var visible by remember {
         mutableStateOf(false)
     }
@@ -64,7 +64,7 @@ fun FutureTransactions(transactions: List<TransactionDetails>, navController: Na
                     Text(text = "${transactions.sumOf { it.amount }} €")
                 }
                 if (visible) {
-                    TransactionsList(transactions = transactions, navController = navController)
+                    TransactionsList(transactions = transactions, navController = navController, inIntro = inIntro)
                 }
             }
         }

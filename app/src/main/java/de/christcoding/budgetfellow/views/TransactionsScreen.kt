@@ -1,5 +1,6 @@
 package de.christcoding.budgetfellow.views
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -33,7 +34,11 @@ import de.christcoding.budgetfellow.viewmodels.TransactionViewModel
 import de.christcoding.budgetfellow.viewmodels.TransactionsUiState
 
 @Composable
-fun TransactionsScreen(navController: NavHostController, padding: PaddingValues) {
+fun TransactionsScreen(
+    navController: NavHostController,
+    padding: PaddingValues,
+    inIntro: Boolean = false
+) {
     val vm: TransactionViewModel = viewModel(factory = AppViewModelProvider.Factory)
     val ctx = LocalContext.current
     val dataStore = StoreAppSettings(ctx)
@@ -45,19 +50,47 @@ fun TransactionsScreen(navController: NavHostController, padding: PaddingValues)
 
     val transactionsState = vm.transactionsState
     if (vm.categories.isNotEmpty()) {
-        LaunchedEffect(key1 = ctx){
+        LaunchedEffect(key1 = ctx) {
             vm.updateTransactionState()
             dataStore.updateCycleStart(vm.cycleStart)
         }
     }
-    Scaffold (
+    Scaffold(
         modifier = Modifier.padding(padding),
         floatingActionButton = {
-            MultiFloatingActionButton(fabIcon = painterResource(id = R.drawable.baseline_add_24),
-                items = arrayListOf(FabItem(icon =  painterResource(id = R.drawable.baseline_add_24), label = "Add Income") {navController.navigate("${Screen.BottomNavigationScreens.TransactionAdd.route}/i")},
-                    FabItem(icon = painterResource(id = R.drawable.minus), label = "Add Expense") {navController.navigate("${Screen.BottomNavigationScreens.TransactionAdd.route}/e")}))
+            MultiFloatingActionButton(
+                fabIcon = painterResource(id = R.drawable.baseline_add_24),
+                items = arrayListOf(FabItem(
+                    icon = painterResource(id = R.drawable.baseline_add_24),
+                    label = "Add Income"
+                ) {
+                    if (!inIntro) {
+                        navController.navigate("${Screen.BottomNavigationScreens.TransactionAdd.route}/i")
+                    } else {
+                        Toast.makeText(
+                            ctx,
+                            ctx.getString(R.string.please_first_continue_with_the_intro),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                },
+                    FabItem(
+                        icon = painterResource(id = R.drawable.minus),
+                        label = "Add Expense"
+                    ) {
+                        if (!inIntro) {
+                            navController.navigate("${Screen.BottomNavigationScreens.TransactionAdd.route}/e")
+                        } else {
+                            Toast.makeText(
+                                ctx,
+                                ctx.getString(R.string.please_first_continue_with_the_intro),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    })
+            )
         }
-    ){
+    ) {
         when (transactionsState) {
             is TransactionsUiState.Loading -> {
                 LoadingScreen(modifier = Modifier.fillMaxSize())
@@ -65,27 +98,54 @@ fun TransactionsScreen(navController: NavHostController, padding: PaddingValues)
 
             is TransactionsUiState.Success -> {
                 Column(modifier = Modifier.padding(it)) {
-                    Column(modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp)
-                        .background(MaterialTheme.colorScheme.surfaceVariant)) {
-                        Text(text = "Cycle Balance", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.padding(top = 8.dp))
-                        Text(text = "${transactionsState.monthlyBalance} €", style = MaterialTheme.typography.headlineLarge, modifier = Modifier.padding(bottom = 8.dp))
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp)
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                    ) {
+                        Text(
+                            text = "Cycle Balance",
+                            style = MaterialTheme.typography.headlineMedium,
+                            modifier = Modifier.padding(top = 8.dp)
+                        )
+                        Text(
+                            text = "${transactionsState.monthlyBalance} €",
+                            style = MaterialTheme.typography.headlineLarge,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
                     }
-                    Column(modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp)
-                        .background(MaterialTheme.colorScheme.surfaceVariant)) {
-                        Text(text = "Cycle Planned Balance", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.padding(top = 8.dp))
-                        Text(text = "${transactionsState.futureMonthlyBalance} €", style = MaterialTheme.typography.headlineLarge)
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp)
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                    ) {
+                        Text(
+                            text = "Cycle Planned Balance",
+                            style = MaterialTheme.typography.headlineMedium,
+                            modifier = Modifier.padding(top = 8.dp)
+                        )
+                        Text(
+                            text = "${transactionsState.futureMonthlyBalance} €",
+                            style = MaterialTheme.typography.headlineLarge
+                        )
 //                        Button(onClick = { /*TODO*/ },modifier = Modifier.padding(bottom = 8.dp) ,contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp) ,enabled = false, colors = ButtonColors(disabledContainerColor = Positive, disabledContentColor = Color.White, containerColor = Positive, contentColor = Color.White)) {
 //                            Icon(painterResource(id = R.drawable.baseline_trending_up_24), contentDescription = null)
 //                            Spacer(modifier = Modifier.padding(4.dp))
 //                            Text(text = "+13%")
 //                        }
                     }
-                    FutureTransactions(transactions = transactionsState.futureTransactions, navController)
-                    TransactionsList(transactions = transactionsState.transactions, navController)   
+                    FutureTransactions(
+                        transactions = transactionsState.futureTransactions,
+                        navController,
+                        inIntro
+                    )
+                    TransactionsList(
+                        transactions = transactionsState.transactions,
+                        navController,
+                        inIntro
+                    )
                 }
             }
         }

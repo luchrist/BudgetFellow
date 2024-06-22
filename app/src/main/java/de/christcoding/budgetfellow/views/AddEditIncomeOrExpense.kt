@@ -86,9 +86,8 @@ fun AddEditIncomeOrExpense(
                 is ValidationEvent.Success -> {
                     specificViewModel.handleSubmit(mode)
                 }
-
-                else -> {
-
+                is ValidationEvent.AllSuccess -> {
+                    specificViewModel.handleAllSubmit(mode)
                 }
             }
         }
@@ -275,9 +274,17 @@ fun AddEditIncomeOrExpense(
             }
         }
         Spacer(modifier = Modifier.height(8.dp))
-        OutlinedButton(onClick = { specificViewModel.onEvent(AddTransactionEvent.OnAddClicked) }) {
-            Icon(Icons.Default.Add, contentDescription = "add income")
-            Text(text = addOrSave, fontSize = 18.sp)
+        Row (horizontalArrangement = Arrangement.SpaceEvenly, modifier = Modifier.fillMaxWidth()) {
+            OutlinedButton(onClick = { specificViewModel.onEvent(AddTransactionEvent.OnAddClicked) }) {
+                Icon(Icons.Default.Add, contentDescription = "add income")
+                Text(text = addOrSave, fontSize = 18.sp)
+            }
+            if (transaction != null && transaction.recurring) {
+                OutlinedButton(onClick = { specificViewModel.onEvent(AddTransactionEvent.OnSaveAllClicked) }) {
+                    Icon(Icons.Default.Add, contentDescription = "save all recurring transactions")
+                    Text(text = "Save for all ongoing", fontSize = 18.sp)
+                }
+            }
         }
         if (transaction != null) {
             Spacer(modifier = Modifier.height(8.dp))

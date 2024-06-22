@@ -35,7 +35,7 @@ fun OutcomesIntroScreen(navController: NavHostController) {
         AddEditIncomeOrExpense(mode = TransactionMode.ExpenseAdd, specificViewModel = vm)
     }
     NextSkipButton( onClickActions = {
-        navController.navigate(Screen.SetBudgets.route)
-        StartScreenState(ctx).updateStartingScreen(Screen.SetBudgets.route)
+        navController.navigate(Screen.TransactionsIntro.route)
+        StartScreenState(ctx).updateStartingScreen(Screen.TransactionsIntro.route)
     }, vm.skip)
 }

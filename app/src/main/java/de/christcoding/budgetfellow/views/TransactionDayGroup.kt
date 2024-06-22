@@ -26,7 +26,7 @@ import de.christcoding.budgetfellow.viewmodels.TransactionViewModel
 import java.time.LocalDate
 
 @Composable
-fun TransactionDayGroup(date: LocalDate, transactions: MutableList<TransactionDetails>, navController: NavHostController) {
+fun TransactionDayGroup(date: LocalDate, transactions: MutableList<TransactionDetails>, navController: NavHostController, inIntro: Boolean = false) {
     val vm: TransactionViewModel = viewModel(factory = AppViewModelProvider.Factory)
     val ctx = LocalContext.current
     val dataStore = StoreAppSettings(ctx)
@@ -55,10 +55,11 @@ fun TransactionDayGroup(date: LocalDate, transactions: MutableList<TransactionDe
                         description = transaction.description,
                         recurringIntervalUnit = transaction.recurringIntervalUnit,
                         recurringInterval = transaction.recurringInterval,
-                        recurring = transaction.recurring
+                        recurring = transaction.recurring,
+                        recurringDeleted = transaction.recurringDeleted
                     ))
                 }) {
-                    TransactionItem(transaction = transaction, navController = navController)
+                    TransactionItem(transaction = transaction, navController = navController, inIntro)
                 }
             }
         }
