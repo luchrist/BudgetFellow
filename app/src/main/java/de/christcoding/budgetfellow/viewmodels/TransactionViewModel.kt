@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.time.LocalDate
 import java.time.Month
 
@@ -68,11 +69,11 @@ class TransactionViewModel(
     }
 
     private fun getAllTransactionTillDay(day: LocalDate): List<Transaction> {
-        val allTransactionsTillday: MutableList<Transaction> = mutableListOf()
+        val allTransactionsTillDay: MutableList<Transaction> = mutableListOf()
         val allTransactions = transactions
         for(transaction in allTransactions) {
             if (transaction.date.isBefore(day.plusDays(1))) {
-                allTransactionsTillday.add(transaction)
+                allTransactionsTillDay.add(transaction)
             }
             if(transaction.recurring) {
                 var date = transaction.date
@@ -86,15 +87,15 @@ class TransactionViewModel(
                     if (date.isBefore(day.plusDays(1))
                         && allTransactions.filter { it.recurringId == transaction.recurringId }.none { it.date == date }
                         && allTransactions.filter { it.recurringId == transaction.recurringId }.none { it.date.isAfter(date) }) {
-                        allTransactionsTillday.add(transaction.copyWithoutId(date = date))
-                        viewModelScope.launch {
-                            transactionRepository.addATransaction(transaction.copyWithoutId(date = date))
-                        }
+                        val newTransaction = transaction.copyWithoutId(date = date)
+                        val newId: Long
+                        runBlocking { newId = transactionRepository.addATransaction(newTransaction) }
+                        allTransactionsTillDay.add(newTransaction.copy(id = newId))
                     }
                 }
             }
         }
-        return allTransactionsTillday
+        return allTransactionsTillDay
     }
 
     var editTransactionState by mutableStateOf(TransactionDetails())
